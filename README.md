@@ -9,7 +9,7 @@
 ![Standalone](https://img.shields.io/badge/no_cloud-local_only-ff6b35?style=flat-square)
 
 **Dashboard de supervision temps réel pour batteries Indevolt / C3 Techno**  
-*SolidFlex 2000 ECO · SFA1800 · Micro-onduleurs OpenDTU*
+*SolidFlex 2000 ECO · SFA1800 · Micro-onduleurs Homiles via OpenDTU*
 
 [📦 Installation](#-installation-rapide) · [⚙️ Configuration](#️-configuration) · [📖 Onglets](#-onglets) · [🐳 Docker](#-docker) · [❓ FAQ](#-faq)
 
@@ -20,7 +20,13 @@
 ## 📸 Aperçu
 
 ![Indevolt Dashboard — Onglet Live](screenshot_dashboard.png)
-
+![Indevolt Dashboard — Onglet Batteries](screenshot_batteries.png)
+![Indevolt Dashboard — Onglet Solaire](screenshot_solaire.png)
+![Indevolt Dashboard — Onglet Historique](screenshot_historique.png)
+![Indevolt Dashboard — Onglet Comparatif](screenshot_comparatif.png)
+![Indevolt Dashboard — Onglet API](screenshot_api-config.png)
+![Indevolt Dashboard — Onglet Logs](screenshot_logs.png)
+![Indevolt Dashboard — Onglet Paramètres](screenshot_parametres.png)
 > Onglet **Temps réel** — Flux d'énergie avec sélecteur de modèle. De gauche à droite : nœuds sources/charges, hub batterie central avec SOC et tendance, métriques clés en bas.
 
 **Navigation multi-onglets :**
