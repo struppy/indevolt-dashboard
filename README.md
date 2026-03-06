@@ -56,7 +56,7 @@
 ### 1. Cloner le dépôt
 
 ```bash
-git clone https://github.com/VOTRE_USER/indevolt-dashboard.git
+git clone https://github.com/struppy/indevolt-dashboard.git
 cd indevolt-dashboard
 ```
 
