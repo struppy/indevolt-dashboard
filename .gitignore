@@ -1,0 +1,7 @@
+data/store/*.json
+.DS_Store
+*.swp
+*~
+*.log
+__pycache__/
+*.pyc

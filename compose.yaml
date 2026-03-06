@@ -1,0 +1,24 @@
+version: "3.8"
+services:
+  dashboard:
+    image: nginx:alpine
+    ports:
+      - "8480:80"
+    environment:
+      - APP_ENV=${APP_ENV:-production}
+    volumes:
+      - ./html:/usr/share/nginx/html:rw
+      - ./nginx:/etc/nginx/conf.d:rw
+    restart: unless-stopped
+    depends_on:
+      - settings-api
+
+  settings-api:
+    image: python:3.11-alpine
+    volumes:
+      - ./data:/data:rw
+      - .:/app:ro
+    command: python3 /app/settings_api.py
+    environment:
+      - PORT=8081
+    restart: unless-stopped

@@ -1,0 +1,23 @@
+{
+  "socAlert": 20,
+  "socSound": false,
+  "capacity": 5392,
+  "feedLimit": 200,
+  "priceImport": 0.21,
+  "priceExport": 0.13,
+  "nightMode": false,
+  "nightStart": "22:00",
+  "nightEnd": "06:00",
+  "scheduleEnabled": false,
+  "scheduleStart": "02:00",
+  "scheduleEnd": "06:00",
+  "scheduleMode": 1,
+  "opendtuEnabled": false,
+  "opendtuIp": "192.168.1.121",
+  "weatherLat": "48.5734",
+  "weatherLon": "7.7521",
+  "tempAlert": 45,
+  "tempAlertEnabled": true,
+  "cycleStartDate": "2026-01-29",
+  "cycleStartCount": 0
+}

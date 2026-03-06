@@ -1,0 +1,39 @@
+{
+  "socAlert": 15,
+  "socSound": true,
+  "capacity": 5392,
+  "feedLimit": 500,
+  "priceImport": 0.2516,
+  "priceExport": 0.13,
+  "nightMode": false,
+  "nightStart": "22:00",
+  "nightEnd": "06:00",
+  "scheduleEnabled": false,
+  "scheduleStart": "02:00",
+  "scheduleEnd": "06:00",
+  "scheduleMode": 1,
+  "opendtuEnabled": false,
+  "opendtuIp": "192.168.1.121",
+  "weatherLat": "48.5734",
+  "weatherLon": "7.7521",
+  "tempAlert": 45,
+  "tempAlertEnabled": true,
+  "cycleStartCount": 0,
+  "cycleStartDate": "2026-01-29",
+  "pvPeakW": 2000,
+  "pvTilt": 15,
+  "pvAzimuth": 260,
+  "scheduleSlots": [],
+  "forceChargeSOC": 80,
+  "forceDischargeSOC": 20,
+  "installations": [
+    {
+      "id": "inst_1772614998677",
+      "name": "SolidFlex ECO",
+      "ip": "192.168.1.71",
+      "port": 8080,
+      "model": "solidflex_eco_opendtu"
+    }
+  ],
+  "activeInstallId": "inst_1772614998677"
+}
