@@ -19,7 +19,7 @@
 
 ## 📸 Aperçu
 
-![Indevolt Dashboard — Onglet Live](screenshot_dashboard.png)
+![Indevolt Dashboard — Onglet Live](./screenshots/screenshot_dashboard.png)
 > Onglet **Temps réel** — Flux d'énergie avec sélecteur de modèle. De gauche à droite : nœuds sources/charges, hub batterie central avec SOC et tendance, métriques clés en bas.
 
 **Navigation multi-onglets :**
