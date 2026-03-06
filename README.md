@@ -47,7 +47,7 @@
 
 - Docker Engine ≥ 20.x
 - Docker Compose v2
-- Accès réseau local à votre onduleur Indevolt (même sous-réseau)
+- Accès réseau local à votre monitoring onduleur 5openDtu) et à la batterie Indevolt (même sous-réseau)
 
 ### 1. Cloner le dépôt
 
