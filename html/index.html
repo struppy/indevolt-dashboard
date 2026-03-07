@@ -6936,6 +6936,13 @@ document.addEventListener('DOMContentLoaded', async () => {
   const params = new URLSearchParams(location.search);
   if (params.get('ip'))   { document.getElementById('deviceIP').value   = params.get('ip');   state.ip   = params.get('ip'); }
   if (params.get('port')) { document.getElementById('devicePort').value = params.get('port'); state.port = parseInt(params.get('port')); }
+
+  // ── Auto-connexion si IP déjà configurée ──────────────────────
+  const _autoIP = state.ip || savedIP || params.get('ip');
+  if (_autoIP) {
+    logger.info('Auto-connexion…', _autoIP);
+    setTimeout(() => connect(), 600);
+  }
 });
 </script>
   <!-- ===== BOTTOM NAV (mobile ≤ 480px) ===== -->
