@@ -5,3 +5,6 @@ data/store/*.json
 *.log
 __pycache__/
 *.pyc
+PROCEDURE_GIT.md
+html/index.html.bak
+git-push.sh

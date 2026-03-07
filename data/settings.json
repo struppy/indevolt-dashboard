@@ -1,8 +1,8 @@
 {
-  "socAlert": 15,
+  "socAlert": 10,
   "socSound": true,
   "capacity": 5392,
-  "feedLimit": 500,
+  "feedLimit": 300,
   "priceImport": 0.2516,
   "priceExport": 0.13,
   "nightMode": false,
