@@ -2986,6 +2986,7 @@ function startTimer() {
       fetchData();
       if (state.opendtu.enabled) fetchOpenDTU();
     }
+
     // Vérifier scheduler chaque minute
     if (state.countdown % 60 === 0) checkScheduler();
   }, 1000);
@@ -6606,6 +6607,22 @@ function _checkForceStop(soc) {
 
 // Rafraîchir ligne "maintenant" toutes les minutes
 setInterval(_updateNowLine, 60000);
+
+// Rafraîchir forecast.solar toutes les 30 min (invalide cache + re-fetch + redraw)
+setInterval(() => {
+  if (state.model === 'solidflex_eco_opendtu') {
+    _forecastSolarCache = null;
+    _forecastSolarTs    = 0;
+    fetchForecastSolar();
+  }
+}, 1800000);
+
+// Redessiner le canvas forecast.solar toutes les minutes pour mettre à jour la ligne "maintenant"
+setInterval(() => {
+  if (_forecastSolarCache && window._currentTab === 'solar') {
+    renderForecastSolar(_forecastSolarCache);
+  }
+}, 60000);
 
 
 // ==================== JOURNAL D'ÉVÉNEMENTS ====================
