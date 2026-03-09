@@ -2027,7 +2027,7 @@
             style="width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);color:var(--text);font-size:12px;padding:6px 8px">
         </div>
       </div>
-      <div style="font-size:9px;color:var(--text3);margin-top:8px">forecast.solar : 0° = plein sud · -90° = est · +90° = ouest · ±180° = nord · Plage : -180 à +180</div>
+      <div style="font-size:9px;color:var(--text3);margin-top:8px">Azimuth : 0° = plein sud · -90° = est · +90° = ouest</div>
     </div>
 
   </div><!-- /tab-solar -->
@@ -2901,7 +2901,7 @@ function applyModel(model) {
   const wxSection   = document.getElementById('weatherSection');
   const mpptSection = document.getElementById('mpptSection');
   if (invSection)  invSection.style.display  = isEcoOpenDTU ? '' : 'none';
-  if (wxSection)   wxSection.style.display   = (isEcoOpenDTU || hasMPPT) ? '' : 'none';
+  if (wxSection)   wxSection.style.display   = isEcoOpenDTU ? '' : 'none';
   if (mpptSection) mpptSection.style.display = hasMPPT ? '' : 'none';
 
   // Badge OpenDTU sous l'icône solaire
@@ -2986,7 +2986,6 @@ function startTimer() {
       state.countdown = 30;
       fetchData();
       if (state.opendtu.enabled) fetchOpenDTU();
-      if (state.model === 'solidflex_mppt' || state.model === 'powerflex_mppt') fetchWeather();
     }
 
     // Vérifier scheduler chaque minute
@@ -3704,7 +3703,8 @@ function renderWeather(data) {
     const radColor = rad > 4 ? 'var(--solar)' : rad > 2 ? 'var(--warn)' : 'var(--text3)';
     html += `<div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius2);padding:16px;text-align:center">
       <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px">${days[i]}</div>
-      <div style="font-size:52px;line-height:1;margin-bottom:8px">${wmoIcon(wcode)}</div>
+      <div style="font-size:28px;margin-bottom:6px">${wmoIcon(wcode)}</div>
+      <div style="font-size:11px;color:var(--text3);margin-top:2px">☁️ Météo</div>
       <div style="margin-top:8px;display:flex;justify-content:center;gap:12px;font-size:11px">
         <span style="color:var(--danger)">${tmax}°</span>
         <span style="color:var(--text3)">${tmin}°</span>
@@ -3714,8 +3714,13 @@ function renderWeather(data) {
     </div>`;
   }
   html += '</div>';
+  // Courbe rayonnement horaire
+  html += `<div style="margin-top:4px">
+    <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px">Rayonnement horaire — aujourd'hui (Open-Meteo)</div>
+    <canvas id="chartRadiation" style="width:100%;height:80px;display:block"></canvas>
+  </div>`;
   el.innerHTML = html;
-  // Graphique rayonnement supprimé — forecast.solar couvre déjà la production prévue
+  drawRadiationChart(data);
 }
 
 function drawRadiationChart(data) {
@@ -5315,9 +5320,9 @@ const settings = {
   cycleStartDate: '',
   cycleStartCount: 0,
   // ── PV / forecast.solar ────────────────────────────
-  pvPeakW:    10000,  // Puissance crête en W
-  pvTilt:     39,     // Inclinaison en degrés (moyenne pondérée 2kWc@15° + 8kWc@45°)
-  pvAzimuth:  65,     // Azimuth : +65° = ouest-sud-ouest
+  pvPeakW:    2000,   // Puissance crête en W
+  pvTilt:     35,     // Inclinaison en degrés
+  pvAzimuth:  0,      // Azimuth : 0 = sud
   // ── Planificateur avancé ─────────────────────────────
   scheduleSlots: [],   // [{id, start:'HH:MM', end:'HH:MM', mode:'auto'|'charge'|'discharge'|'schedule', socTarget:null}]
   forceChargeSOC:  80, // SOC cible forçage charge
@@ -5733,7 +5738,7 @@ function saveSettings() {
   const _lonSave = document.getElementById('settingWeatherLon'); if (_lonSave) settings.weatherLon = _lonSave.value.trim() || '7.7521';
   const _pvPeak   = document.getElementById('settingPvPeakW');   if (_pvPeak)   settings.pvPeakW   = parseInt(_pvPeak.value)   || 2000;
   const _pvTilt   = document.getElementById('settingPvTilt');    if (_pvTilt)   settings.pvTilt    = parseInt(_pvTilt.value)   || 35;
-  const _pvAz     = document.getElementById('settingPvAzimuth'); if (_pvAz)     settings.pvAzimuth = _pvAz.value !== '' ? parseInt(_pvAz.value) : 0;
+  const _pvAz     = document.getElementById('settingPvAzimuth'); if (_pvAz)     settings.pvAzimuth = parseInt(_pvAz.value)    || 0;
   _weatherCache = null;  // invalider le cache météo
   const _taEl2 = document.getElementById('settingTempAlert');        if (_taEl2) settings.tempAlert = parseFloat(_taEl2.value) || 45;
   const _taeEl2= document.getElementById('settingTempAlertEnabled'); if (_taeEl2) settings.tempAlertEnabled = _taeEl2.checked;
@@ -6924,9 +6929,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (el) el.textContent = '✅ Notifications autorisées';
   }
   // Charger météo solaire au démarrage (si ECO+OpenDTU)
-  if (state.model === 'solidflex_eco_opendtu' || state.model === 'solidflex_mppt' || state.model === 'powerflex_mppt') {
+  if (state.model === 'solidflex_eco_opendtu') {
     fetchWeather();
-    fetchForecastSolar();
     drawSolarDayChart();
   }
   // Charger historique 7 jours
