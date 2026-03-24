@@ -20,6 +20,7 @@
   "tempAlertEnabled": true,
   "cycleStartCount": 0,
   "cycleStartDate": "2026-01-29",
+  "theme": "light",
   "pvPeakW": 2000,
   "pvTilt": 15,
   "pvAzimuth": 65,

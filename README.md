@@ -2,7 +2,7 @@
 
 <div align="center">
 
-![Version](https://img.shields.io/badge/version-2.0-00e5a0?style=flat-square)
+![Version](https://img.shields.io/badge/version-2.1-00e5a0?style=flat-square)
 ![Docker](https://img.shields.io/badge/docker-ready-2496ED?style=flat-square&logo=docker)
 ![License](https://img.shields.io/badge/license-MIT-green?style=flat-square)
 ![Nginx](https://img.shields.io/badge/nginx-proxy-009639?style=flat-square&logo=nginx)
@@ -30,13 +30,14 @@
 
 | Catégorie | Fonctionnalité |
 |-----------|---------------|
-| 📡 **Temps réel** | Polling toutes les 30s · Flux d'énergie animé · SOC avec tendance |
+| 📡 **Temps réel** | Polling toutes les 30s · Flux d'énergie animé · SOC avec tendance · Seuil flux réseau 10W |
 | 🔋 **Batteries** | Contrôle mode direct · Planificateur horaire visuel drag & drop · Forçage charge/décharge |
 | ☀️ **Solaire** | Micro-onduleurs OpenDTU (HM-400, HM-800) · Prévision **forecast.solar** · Météo Open-Meteo |
-| 📊 **Historique** | Graphiques 7j avec zoom 5min–2h · Historique 30j · Comparaison semaine N vs N-1 |
+| 📊 **Historique** | Graphiques 7j avec zoom · Historique 30j **multi-sélection** avec barres groupées · Comparaison N vs N-1 |
 | 🏘️ **Multi-installations** | Tableau comparatif SOC/puissance/température · Fetch parallèle · Auto-refresh 30s |
 | 📋 **Journal** | Détection coupures réseau, bypass, alertes SOC/temp · Export PDF horodaté |
 | 💾 **Persistance** | Stockage serveur via sidecar Python (survit aux rechargements de page) |
+| 🎨 **Thème** | Mode **clair / sombre / auto** (suit le système) · Bascule en un clic dans le header |
 | 📱 **Responsive** | Mobile complet · Bottom nav fixe · Swipe entre onglets · Pinch-to-zoom |
 
 ---
@@ -224,7 +225,8 @@ Analyse des données sur 7 jours et 30 jours.
 - Buffer 6h de données (point toutes les 30s)
 
 **Historique 30 jours :**
-- Graphique barres avec 5 métriques sélectionnables : Production / Import / Export / Charge / Décharge
+- Graphique barres avec **multi-sélection** : combinez Production / Import / Export / Charge / Décharge
+- Barres groupées côte à côte par jour — chaque catégorie a sa couleur dédiée
 - Sélecteur de plage : 7j / 14j / 30j ou dates personnalisées
 
 **Comparaison hebdomadaire :**
@@ -248,6 +250,24 @@ Vue comparative si vous disposez de plusieurs installations Indevolt.
 - **Auto-refresh toutes les 30 secondes**
 
 > 💡 Gérez vos installations dans Paramètres → Installations
+
+---
+
+### 🎨 Thème — Mode clair / sombre
+
+Choisissez l'apparence du dashboard selon vos préférences.
+
+| Mode | Comportement |
+|------|-------------|
+| 🌓 **Auto** | Suit automatiquement les préférences de votre système (macOS / Windows / Android) |
+| 🌙 **Sombre** | Thème sombre original — fond #0a0d0f, accents verts |
+| ☀️ **Clair** | Thème clair optimisé — contrastes WCAG AA, graphiques adaptés |
+
+**Changer de thème :**
+- **Bouton 🌓** dans le header — cycle Auto → Sombre → Clair en un clic
+- **Onglet Paramètres** — sélecteur avec sauvegarde persistante
+
+> Les graphiques Canvas s'adaptent automatiquement : grilles, labels et légendes passent du blanc au noir selon le thème actif.
 
 ---
 
@@ -296,6 +316,7 @@ Tous les réglages de l'installation :
 - Alertes (SOC, température, export)
 - Tarifs électricité (import/export)
 - Mode nuit (horaires automatiques)
+- Thème clair / sombre / auto
 - Notifications push navigateur
 - Compteur de cycles (date de départ, cycles initiaux)
 
@@ -410,6 +431,24 @@ docker compose restart nginx
 ```
 
 Les données persistantes dans `data/store/` ne sont pas affectées.
+
+---
+
+## 📋 Changelog
+
+### v2.1 — 2026-03-24
+- ✨ **Thème clair/sombre/auto** — bascule header + sélecteur Paramètres, graphiques Canvas adaptatifs
+- ✨ **Historique multi-sélection** — barres groupées côte à côte, légende colorée par catégorie
+- 🐛 Fix graphiques vides à l'ouverture de l'onglet Historique (canvas invisible au chargement)
+- 🐛 Fix seuil flux réseau abaissé 50W → 10W (point animé plus réactif)
+- 🐛 Fix prix export à 0€ accepté (n'était pas sauvegardé)
+- 🌍 Dates au format `dd-mm-yyyy` partout (graphiques, CSV, noms de fichiers, rapports)
+- 🧹 Suppression du graphique 7j redondant dans l'onglet Paramètres
+
+### v2.0
+- Multi-installations, planificateur drag & drop, journal d'événements, comparatif hebdomadaire
+- Forecast.solar, météo Open-Meteo, OpenDTU
+- Persistance serveur via sidecar Python
 
 ---
 

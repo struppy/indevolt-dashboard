@@ -36,45 +36,45 @@
 
   /* ===== THÈME CLAIR ===== */
   [data-theme="light"] {
-    --bg:        #f0f4f2;
-    --bg2:       #e4ece8;
-    --bg3:       #d8e4de;
-    --border:    #b8cec6;
-    --border2:   #a0bab2;
-    --accent:    #00956a;
-    --accent2:   #007a52;
-    --accent3:   #005c3d;
-    --solar:     #c49b00;
-    --solar2:    #9a7a00;
-    --grid-imp:  #cc3333;
-    --grid-exp:  #2266cc;
-    --text:      #1a2e28;
-    --text2:     #3a5a50;
-    --text3:     #6a8a80;
-    --danger:    #cc3333;
-    --warn:      #b8860b;
+    --bg:        #f2f7f5;
+    --bg2:       #e3ede8;
+    --bg3:       #cfddd7;
+    --border:    #9bbdb4;
+    --border2:   #7aa49a;
+    --accent:    #007a52;
+    --accent2:   #005c3d;
+    --accent3:   #003d28;
+    --solar:     #a07800;
+    --solar2:    #7a5c00;
+    --grid-imp:  #b52020;
+    --grid-exp:  #1a55b0;
+    --text:      #0a1a14;
+    --text2:     #1a3a2e;
+    --text3:     #325a4e;
+    --danger:    #b52020;
+    --warn:      #8a6000;
   }
 
   /* ===== AUTO : suit le système ===== */
   @media (prefers-color-scheme: light) {
     :root:not([data-theme="dark"]):not([data-theme="light"]) {
-      --bg:        #f0f4f2;
-      --bg2:       #e4ece8;
-      --bg3:       #d8e4de;
-      --border:    #b8cec6;
-      --border2:   #a0bab2;
-      --accent:    #00956a;
-      --accent2:   #007a52;
-      --accent3:   #005c3d;
-      --solar:     #c49b00;
-      --solar2:    #9a7a00;
-      --grid-imp:  #cc3333;
-      --grid-exp:  #2266cc;
-      --text:      #1a2e28;
-      --text2:     #3a5a50;
-      --text3:     #6a8a80;
-      --danger:    #cc3333;
-      --warn:      #b8860b;
+      --bg:        #f2f7f5;
+      --bg2:       #e3ede8;
+      --bg3:       #cfddd7;
+      --border:    #9bbdb4;
+      --border2:   #7aa49a;
+      --accent:    #007a52;
+      --accent2:   #005c3d;
+      --accent3:   #003d28;
+      --solar:     #a07800;
+      --solar2:    #7a5c00;
+      --grid-imp:  #b52020;
+      --grid-exp:  #1a55b0;
+      --text:      #0a1a14;
+      --text2:     #1a3a2e;
+      --text3:     #325a4e;
+      --danger:    #b52020;
+      --warn:      #8a6000;
     }
   }
 
@@ -2832,7 +2832,7 @@ class SimpleChart {
       const i = Math.min(this.hoverIdx, data.length - 1);
       const x = pad.left + (i / (data.length - 1)) * w;
       const y = pad.top + h - ((data[i] - min) / range) * h;
-      ctx.strokeStyle = 'rgba(255,255,255,.25)';
+      ctx.strokeStyle = cc.grid;
       ctx.lineWidth = 1;
       ctx.setLineDash([4, 3]);
       ctx.beginPath(); ctx.moveTo(x, pad.top); ctx.lineTo(x, pad.top + h); ctx.stroke();
@@ -2944,7 +2944,7 @@ class MultiChart {
       const i = this.hoverIdx;
       const maxLen = Math.max(...series.map(s => s.data.length), 1);
       const x = pad.left + (i / Math.max(maxLen - 1, 1)) * w;
-      ctx.strokeStyle = 'rgba(255,255,255,.2)';
+      ctx.strokeStyle = cc.grid;
       ctx.lineWidth = 1;
       ctx.setLineDash([4, 3]);
       ctx.beginPath(); ctx.moveTo(x, pad.top); ctx.lineTo(x, pad.top + h); ctx.stroke();
@@ -3572,6 +3572,7 @@ function solarHistPush(power, yieldDay) {
 }
 
 function drawSolarDayChart() {
+  const cc = getCanvasColors();
   const canvas = document.getElementById('chartSolarDay');
   if (!canvas) return;
   try {
@@ -3592,11 +3593,11 @@ function drawSolarDayChart() {
     const xs = i => pad.left + (i / (n - 1)) * gw;
     const ys = v => pad.top + gh - (v / maxPw) * gh;
     // Grille
-    ctx.strokeStyle = 'rgba(255,255,255,.05)'; ctx.lineWidth = 1;
+    ctx.strokeStyle = cc.grid; ctx.lineWidth = 1;
     [0, 0.25, 0.5, 0.75, 1].forEach(f => {
       const y = pad.top + gh * (1 - f);
       ctx.beginPath(); ctx.moveTo(pad.left, y); ctx.lineTo(W - pad.right, y); ctx.stroke();
-      ctx.fillStyle = 'rgba(255,255,255,.3)'; ctx.font = `${10 * dpr}px monospace`;
+      ctx.fillStyle = cc.label; ctx.font = `${10 * dpr}px monospace`;
       ctx.fillText(Math.round(maxPw * f) + 'W', 2, y + 4 * dpr);
     });
     // Aire
@@ -3614,7 +3615,7 @@ function drawSolarDayChart() {
     ctx.stroke();
     // Labels temps (toutes les 2h environ)
     const step = Math.max(1, Math.floor(n / 8));
-    ctx.fillStyle = 'rgba(255,255,255,.35)'; ctx.font = `${9 * dpr}px monospace`;
+    ctx.fillStyle = cc.label2; ctx.font = `${9 * dpr}px monospace`;
     ctx.textAlign = 'center';
     for (let i = 0; i < n; i += step) {
       const d = new Date(h.ts[i]);
@@ -3856,6 +3857,7 @@ function renderForecastSolar(result) {
 }
 
 function drawForecastSolarChart(slots) {
+  const cc = getCanvasColors();
   const canvas = document.getElementById('chartForecastSolar');
   if (!canvas) return;
   const dpr = window.devicePixelRatio || 1;
@@ -3897,12 +3899,12 @@ function drawForecastSolarChart(slots) {
   // Labels axe Y
   [0, Math.round(maxV/2), Math.round(maxV)].forEach(v => {
     const y=ys(v);
-    ctx.fillStyle='rgba(255,255,255,.25)'; ctx.font=(8*dpr)+'px monospace'; ctx.textAlign='right';
+    ctx.fillStyle=cc.label; ctx.font=(8*dpr)+'px monospace'; ctx.textAlign='right';
     ctx.fillText((v/1000).toFixed(1)+'k', pad.left-3, y+3*dpr);
   });
 
   // Labels heures
-  ctx.fillStyle='rgba(255,255,255,.35)'; ctx.font=(8*dpr)+'px monospace'; ctx.textAlign='center';
+  ctx.fillStyle=cc.label2; ctx.font=(8*dpr)+'px monospace'; ctx.textAlign='center';
   slots.filter(s => s.h % 3 === 0).forEach(s => {
     const i = slots.indexOf(s);
     ctx.fillText(s.h+'h', xs(i), H-4*dpr);
@@ -3960,6 +3962,7 @@ function renderWeather(data) {
 }
 
 function drawRadiationChart(data) {
+  const cc = getCanvasColors();
   const canvas = document.getElementById('chartRadiation');
   if (!canvas || !data.hourly) return;
   requestAnimationFrame(() => {
@@ -3992,7 +3995,7 @@ function drawRadiationChart(data) {
     ctx.beginPath(); ctx.strokeStyle = '#f5c842'; ctx.lineWidth = 1.5 * dpr; ctx.lineJoin = 'round';
     hours.forEach((x, i) => i === 0 ? ctx.moveTo(xs(i), ys(x.v)) : ctx.lineTo(xs(i), ys(x.v)));
     ctx.stroke();
-    ctx.fillStyle = 'rgba(255,255,255,.3)'; ctx.font = `${9*dpr}px monospace`; ctx.textAlign = 'center';
+    ctx.fillStyle = cc.label; ctx.font = `${9*dpr}px monospace`; ctx.textAlign = 'center';
     [6,9,12,15,18,21].forEach(h => {
       const idx = hours.findIndex(x => parseInt(x.t.slice(11,13)) === h);
       if (idx >= 0) ctx.fillText(h + 'h', xs(idx), H - 4*dpr);
@@ -4124,6 +4127,7 @@ function updateCycleDisplay() {
 }
 
 function drawDegradChart() {
+  const cc = getCanvasColors();
   const canvas = document.getElementById('chartDegrad');
   if (!canvas) return;
   try {
@@ -4135,7 +4139,7 @@ function drawDegradChart() {
       canvas.width  = canvas.offsetWidth  * dpr;
       canvas.height = canvas.offsetHeight * dpr;
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.fillStyle = 'rgba(255,255,255,.2)';
+      ctx.fillStyle = cc.nodata;
       ctx.font = (11 * dpr) + 'px monospace';
       ctx.textAlign = 'center';
       ctx.fillText('Données insuffisantes — revenez dans quelques jours', canvas.width/2, canvas.height/2);
@@ -4153,11 +4157,11 @@ function drawDegradChart() {
     const xs = i => pad.left + (i / (n-1)) * gw;
     const ys = v => pad.top + gh - ((v - 70) / 30) * gh;  // axe 70-100%
     // Grille horizontale
-    ctx.strokeStyle = 'rgba(255,255,255,.05)'; ctx.lineWidth = 1;
+    ctx.strokeStyle = cc.grid; ctx.lineWidth = 1;
     [70, 80, 90, 100].forEach(v => {
       const y = ys(v);
       ctx.beginPath(); ctx.moveTo(pad.left, y); ctx.lineTo(W - pad.right, y); ctx.stroke();
-      ctx.fillStyle = 'rgba(255,255,255,.3)';
+      ctx.fillStyle = cc.label;
       ctx.font = (9 * dpr) + 'px monospace';
       ctx.textAlign = 'right';
       ctx.fillText(v + '%', pad.left - 4, y + 3 * dpr);
@@ -4188,9 +4192,9 @@ function drawDegradChart() {
     });
     // Labels date (espacement auto)
     const step = Math.max(1, Math.floor(n / 6));
-    ctx.fillStyle = 'rgba(255,255,255,.3)'; ctx.font = (9*dpr) + 'px monospace'; ctx.textAlign = 'center';
+    ctx.fillStyle = cc.label; ctx.font = (9*dpr) + 'px monospace'; ctx.textAlign = 'center';
     for (let i = 0; i < n; i += step) {
-      const d = h[i].date.slice(5);  // MM-DD
+      const d = fmtDateShort(h[i].date);  // DD-MM
       ctx.fillText(d, xs(i), H - 5*dpr);
     }
   } catch(e) {}
@@ -4316,6 +4320,7 @@ function get30DayHistory() {
 }
 
 function draw30DayChart() {
+  const cc = getCanvasColors();
   const canvas = document.getElementById('chart30Days');
   if (!canvas) return;
   const { hist, days } = getFilteredHistDays();
@@ -4330,7 +4335,7 @@ function draw30DayChart() {
   ctx.clearRect(0, 0, W, H);
 
   if (days.length < 2) {
-    ctx.fillStyle = 'rgba(255,255,255,.2)';
+    ctx.fillStyle = cc.nodata;
     ctx.font = (11*dpr) + 'px monospace';
     ctx.textAlign = 'center';
     ctx.fillText('Données insuffisantes — revenez dans quelques jours', W/2, H/2);
@@ -4349,7 +4354,7 @@ function draw30DayChart() {
   const active = order.filter(m => (window._activeHistMetrics || new Set(['prod'])).has(m));
 
   if (active.length === 0) {
-    ctx.fillStyle = 'rgba(255,255,255,.2)';
+    ctx.fillStyle = cc.nodata;
     ctx.font = (11*dpr) + 'px monospace'; ctx.textAlign = 'center';
     ctx.fillText('Sélectionnez au moins une catégorie', W/2, H/2);
     return;
@@ -4370,11 +4375,11 @@ function draw30DayChart() {
   const barW     = Math.max(2*dpr, (groupW - groupPad*2 - barGap*(na-1)) / na);
 
   // Grille horizontale
-  ctx.strokeStyle = 'rgba(255,255,255,.05)'; ctx.lineWidth = 1;
+  ctx.strokeStyle = cc.grid; ctx.lineWidth = 1;
   [0, .25, .5, .75, 1].forEach(f => {
     const y = pad.top + gh*(1-f);
     ctx.beginPath(); ctx.moveTo(pad.left, y); ctx.lineTo(W-pad.right, y); ctx.stroke();
-    ctx.fillStyle = 'rgba(255,255,255,.3)';
+    ctx.fillStyle = cc.label;
     ctx.font = (8*dpr) + 'px monospace'; ctx.textAlign = 'right';
     ctx.fillText((maxV*f).toFixed(1), pad.left - 4*dpr, y + 3*dpr);
   });
@@ -4399,9 +4404,9 @@ function draw30DayChart() {
     });
     // Label date
     if (i % Math.max(1, Math.floor(n/8)) === 0) {
-      ctx.fillStyle = 'rgba(255,255,255,.35)';
+      ctx.fillStyle = cc.label2;
       ctx.font = (8*dpr) + 'px monospace'; ctx.textAlign = 'center';
-      ctx.fillText(day.slice(5), pad.left + i*groupW + groupW/2, H - 6*dpr);
+      ctx.fillText(fmtDateShort(day), pad.left + i*groupW + groupW/2, H - 6*dpr);
     }
   });
 
@@ -4412,7 +4417,7 @@ function draw30DayChart() {
     const label = palettes[m].label;
     ctx.fillStyle = palettes[m].color + 'bb';
     ctx.fillRect(lx, pad.top - 14*dpr, 10*dpr, 8*dpr);
-    ctx.fillStyle = 'rgba(255,255,255,.5)';
+    ctx.fillStyle = cc.label3;
     ctx.fillText(label, lx + 13*dpr, pad.top - 7*dpr);
     lx += ctx.measureText(label).width + 26*dpr;
   });
@@ -4445,6 +4450,7 @@ function toggleHistMetric(m) {
 function switchHistMetric(m) { toggleHistMetric(m); }  // rétrocompat
 
 function drawWeekCompare() {
+  const cc = getCanvasColors();
   const canvas = document.getElementById('chartWeekCompare');
   const { hist, days: allDays } = { hist: get30DayHistory(), days: Object.keys(get30DayHistory()).sort() };
   const days = allDays;
@@ -4454,7 +4460,7 @@ function drawWeekCompare() {
     const W = canvas.offsetWidth*dpr, H = canvas.offsetHeight*dpr;
     canvas.width=W; canvas.height=H; ctx.clearRect(0,0,W,H);
     if (days.length < 7) {
-      ctx.fillStyle='rgba(255,255,255,.2)'; ctx.font=(11*dpr)+'px monospace'; ctx.textAlign='center';
+      ctx.fillStyle=cc.nodata; ctx.font=(11*dpr)+'px monospace'; ctx.textAlign='center';
       ctx.fillText('7 jours requis', W/2, H/2); 
     } else {
       const weekN  = days.slice(-7);
@@ -4467,7 +4473,7 @@ function drawWeekCompare() {
       const xs = i => pad.left + (i/6)*gw;
       const ys = v => pad.top + gh - (v/maxV)*gh;
       // Grille
-      ctx.strokeStyle='rgba(255,255,255,.05)'; ctx.lineWidth=1;
+      ctx.strokeStyle=cc.grid; ctx.lineWidth=1;
       [0,.5,1].forEach(f => { const y=pad.top+gh*(1-f); ctx.beginPath(); ctx.moveTo(pad.left,y); ctx.lineTo(W-pad.right,y); ctx.stroke(); });
       // N-1
       if (valsN1) {
@@ -4484,7 +4490,7 @@ function drawWeekCompare() {
         ctx.beginPath(); ctx.arc(xs(i),ys(v),3*dpr,0,Math.PI*2); ctx.fillStyle='#f5c842'; ctx.fill();
         const d=new Date(weekN[i]+'T12:00:00');
         const dn=['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'][d.getDay()];
-        ctx.fillStyle='rgba(255,255,255,.3)'; ctx.font=(9*dpr)+'px monospace'; ctx.textAlign='center';
+        ctx.fillStyle=cc.label; ctx.font=(9*dpr)+'px monospace'; ctx.textAlign='center';
         ctx.fillText(dn, xs(i), H-5*dpr);
       });
     }
@@ -4533,7 +4539,7 @@ async function generatePDFReport() {
     const rows = days.map(d => {
       const v=hist[d];
       return `<tr style="border-bottom:1px solid #2a3a2a">
-        <td>${d}</td><td class="r y">${(v.prod||0).toFixed(2)}</td>
+        <td>${fmtDate(d)}</td><td class="r y">${(v.prod||0).toFixed(2)}</td>
         <td class="r b">${(v.imp||0).toFixed(2)}</td><td class="r g">${(v.exp||0).toFixed(2)}</td>
         <td class="r">${(v.ch||0).toFixed(2)}</td><td class="r">${(v.dis||0).toFixed(2)}</td>
       </tr>`;
@@ -4642,7 +4648,7 @@ tfoot td{font-weight:700;background:#2a3a2a}
     const blob=new Blob([html],{type:'text/html;charset=utf-8'});
     const url=URL.createObjectURL(blob);
     const a=document.createElement('a');
-    a.href=url; a.download='indevolt-rapport-'+( days[0]||'').slice(0,7)+'.html';
+    a.href=url; a.download='indevolt-rapport-'+(days[0]?fmtDate(days[0]).slice(3):'periode')+'.html';
     document.body.appendChild(a); a.click();
     document.body.removeChild(a); URL.revokeObjectURL(url);
     logger.info('Rapport généré', days.length+' jours');
@@ -4752,7 +4758,7 @@ function copyLogs()  { navigator.clipboard.writeText(logger.toText()).then(() =>
 function downloadLogs() {
   const a = document.createElement('a');
   a.href = URL.createObjectURL(new Blob([logger.toText()], {type:'text/plain'}));
-  a.download = 'indevolt-logs-' + new Date().toISOString().slice(0,19).replace(/:/g,'-') + '.txt';
+  a.download = 'indevolt-logs-' + fmtDate(new Date().toISOString().slice(0,10)) + '_' + new Date().toISOString().slice(11,19).replace(/:/g,'-') + '.txt';
   a.click();
 }
 function copyRaw() {
@@ -5682,6 +5688,31 @@ function _initWheelZoom(canvas) {
 
 // ── Plage historique 30j ─────────────────────────────
 window._histRange = { preset: 30, from: null, to: null };
+
+// Convertit yyyy-mm-dd → dd-mm-yyyy pour l'affichage
+function fmtDate(iso) {
+  if (!iso || iso.length < 10) return iso || '';
+  return iso.slice(8,10) + '-' + iso.slice(5,7) + '-' + iso.slice(0,4);
+}
+// Version courte dd-mm (pour les labels de graphiques)
+// Couleurs canvas adaptées au thème (dark = blancs, light = sombres)
+function getCanvasColors() {
+  const isLight = document.documentElement.getAttribute('data-theme') === 'light'
+    || (!document.documentElement.getAttribute('data-theme')
+        && window.matchMedia('(prefers-color-scheme: light)').matches);
+  return {
+    grid:    isLight ? 'rgba(0,0,0,.08)'  : 'rgba(255,255,255,.05)',
+    label:   isLight ? 'rgba(0,0,0,.55)'  : 'rgba(255,255,255,.3)',
+    label2:  isLight ? 'rgba(0,0,0,.65)'  : 'rgba(255,255,255,.35)',
+    label3:  isLight ? 'rgba(0,0,0,.75)'  : 'rgba(255,255,255,.5)',
+    nodata:  isLight ? 'rgba(0,0,0,.35)'  : 'rgba(255,255,255,.2)',
+  };
+}
+
+function fmtDateShort(iso) {
+  if (!iso || iso.length < 10) return iso ? iso.slice(5) : '';
+  return iso.slice(8,10) + '-' + iso.slice(5,7);
+}
 window._activeHistMetrics = new Set(['prod']);
 
 function setHistRange(days) {
@@ -6207,6 +6238,7 @@ function save7DayHistory(dailyCh, dailyDis, dailyImport, dailyExport) {
 }
 
 function draw7DayChart(hist) {
+  const cc = getCanvasColors();
   const canvas = document.getElementById('chart7Days');
   if (!canvas) return;
   const ctx = canvas.getContext('2d');
@@ -6252,7 +6284,7 @@ function draw7DayChart(hist) {
     });
     // Label date
     ctx.fillStyle = '#4a6a60'; ctx.font = '9px Space Mono, monospace';
-    ctx.fillText(day.slice(5), x0, H - 8);
+    ctx.fillText(fmtDateShort(day), x0, H - 8);
   });
 }
 
@@ -6266,7 +6298,7 @@ function exportHistory7DaysCSV() {
   const rows = dates.map(d => {
     const e = hist[d];
     return [
-      d,
+      fmtDate(d),
       (e.ch  || 0).toFixed(2),
       (e.dis || 0).toFixed(2),
       (e.imp || 0).toFixed(2),
@@ -6279,7 +6311,7 @@ function exportHistory7DaysCSV() {
   const url  = URL.createObjectURL(blob);
   const a    = document.createElement('a');
   a.href     = url;
-  a.download = 'indevolt_historique_' + new Date().toISOString().slice(0,10) + '.csv';
+  a.download = 'indevolt_historique_' + fmtDate(new Date().toISOString().slice(0,10)) + '.csv';
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
@@ -6542,9 +6574,9 @@ function _drawCompareSOC(entries) {
   const colors = ['#00e5a0','#60b0f0','#f5c842','#f5803a','#b482dc','#e05a5a'];
   [25,50,75,100].forEach(pct => {
     const y = pad.top + gh*(1-pct/100);
-    ctx.strokeStyle='rgba(255,255,255,.05)'; ctx.lineWidth=1;
+    ctx.strokeStyle=cc.grid; ctx.lineWidth=1;
     ctx.beginPath(); ctx.moveTo(pad.left,y); ctx.lineTo(W-pad.right,y); ctx.stroke();
-    ctx.fillStyle='rgba(255,255,255,.3)'; ctx.font=(9*dpr)+'px monospace'; ctx.textAlign='right';
+    ctx.fillStyle=cc.label; ctx.font=(9*dpr)+'px monospace'; ctx.textAlign='right';
     ctx.fillText(pct+'%', W-pad.right-2, y-2*dpr);
   });
   valid.forEach((e,i) => {
@@ -6560,7 +6592,7 @@ function _drawCompareSOC(entries) {
     ctx.fill();
     ctx.fillStyle=col; ctx.font='bold '+(10*dpr)+'px monospace'; ctx.textAlign='center';
     ctx.fillText(Math.round(e.soc)+'%', x+bw/2, y-3*dpr);
-    ctx.fillStyle='rgba(255,255,255,.5)'; ctx.font=(9*dpr)+'px monospace';
+    ctx.fillStyle=cc.label3; ctx.font=(9*dpr)+'px monospace';
     const lbl = e.name.length>12 ? e.name.slice(0,11)+'…' : e.name;
     ctx.fillText(lbl, x+bw/2, H-8*dpr);
   });
@@ -7183,7 +7215,7 @@ function exportEventPDF() {
   const blob = new Blob([html], { type: 'text/html' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
-  a.download = 'journal-indevolt-' + new Date().toISOString().slice(0,10) + '.html';
+  a.download = 'journal-indevolt-' + fmtDate(new Date().toISOString().slice(0,10)) + '.html';
   a.click();
   showToast('📋 Journal exporté');
 }
