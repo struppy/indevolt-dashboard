@@ -1,0 +1,27 @@
+Contexte — pourquoi cette régression fonctionnelle
+
+L'onglet Comparatif permettait de superviser plusieurs installations
+Indevolt en parallèle. Cette fonctionnalité a été retirée car :
+- Complexité architecturale générant des effets de bord difficiles
+  à maîtriser (paramètres globaux vs par installation, state désynchronisé)
+- Dashboard déployé sur serveur dédié à une installation physique unique
+- Dette technique rendant toute évolution risquée
+
+Supprimé
+- Onglet Comparatif (HTML + JS, ~8 000 chars)
+- 18 fonctions JS : pollAllInstallations, renderInstallList, addInstall,
+  deleteInstall, editInstall, saveInstallEdit, switchInstallation,
+  renderInstallSelector, getActiveInstall, renderCompareView,
+  _drawCompareSOC, _fetchInstData, _startCompareRefresh,
+  apiToggleInstallDropdown, apiSelectInstall, apiRefreshInstallDropdown,
+  _apiGetTargetInstall, _apiCloseDropdown
+- Section Installations dans Paramètres, sélecteur live panel,
+  dropdown installations API, settings.installations[], activeInstallId
+
+Ajouté / corrigé
+- Section Installation dans Paramètres : IP, port, modèle,
+  capacité (Wh), limite export — persisté et synchronisé
+- Bandeau live : <select> modèle cliquable avec stopPropagation
+- updateConfigBar() : rafraîchissement bandeau sans F5
+- onModelChange() : synchronise les 3 selects avant saveSettings()
+- Onglet API : bouton Indevolt remis cliquable, inst.ip → state.ip"
