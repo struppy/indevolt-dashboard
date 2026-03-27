@@ -1,5 +1,5 @@
 {
-  "socAlert": 10,
+  "socAlert": 15,
   "socSound": true,
   "capacity": 5392,
   "feedLimit": 300,
@@ -20,21 +20,14 @@
   "tempAlertEnabled": true,
   "cycleStartCount": 0,
   "cycleStartDate": "2026-01-29",
+  "ip": "192.168.1.71",
+  "port": 8080,
+  "model": "solidflex_eco_opendtu",
   "theme": "light",
   "pvPeakW": 2000,
   "pvTilt": 15,
   "pvAzimuth": 65,
   "scheduleSlots": [],
   "forceChargeSOC": 80,
-  "forceDischargeSOC": 20,
-  "installations": [
-    {
-      "id": "inst_1772614998677",
-      "name": "SolidFlex ECO",
-      "ip": "192.168.1.71",
-      "port": 8080,
-      "model": "solidflex_eco_opendtu"
-    }
-  ],
-  "activeInstallId": "inst_1772614998677"
+  "forceDischargeSOC": 20
 }
