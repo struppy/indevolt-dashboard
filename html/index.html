@@ -1389,20 +1389,21 @@
     <div id="configCollapsedBar" style="display:none;width:100%;align-items:center;gap:12px;cursor:pointer;" onclick="toggleConfigPanel()">
       <div class="status-dot" id="configBarDot"></div>
       <span id="configBarName" style="font-size:12px;font-weight:700;color:var(--text);font-family:var(--font-disp)">—</span>
-      <span id="configBarModel" style="font-size:11px;color:var(--text3)"></span>
+      <select id="configBarModel"
+        onclick="event.stopPropagation()"
+        onchange="onModelChange(this.value);event.stopPropagation()"
+        style="font-size:11px;color:var(--text2);background:transparent;border:none;outline:none;cursor:pointer;font-family:var(--font-body);padding:2px 4px;border-radius:4px">
+        <option value="solidflex_eco">SolidFlex 2000 ECO (sans MPPT)</option>
+        <option value="solidflex_eco_opendtu">SolidFlex 2000 ECO + OpenDTU ☀️</option>
+        <option value="solidflex">SolidFlex 2000 / PowerFlex 2000 (avec MPPT)</option>
+        <option value="bk1600">BK1600 / BK1600 Ultra</option>
+      </select>
       <span style="margin-left:auto;font-size:11px;color:var(--text3);display:flex;align-items:center;gap:5px">
         Modifier
         <svg width="12" height="12" viewBox="0 0 12 12" fill="none" style="transition:transform .3s"><polyline points="2,4 6,8 10,4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </span>
     </div>
     <div class="config-panel-fields" style="display:flex;align-items:flex-end;gap:10px;flex-wrap:wrap;width:100%">
-    <div class="config-field" style="flex:1;min-width:160px">
-      <label>Installation active</label>
-      <select id="installSelector" onchange="switchInstallation(this.value)"
-        style="width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);color:var(--text);font-family:var(--font-body);font-size:13px;padding:8px 12px;outline:none;">
-        <option value="">— Aucune installation —</option>
-      </select>
-    </div>
     <div class="config-field" style="flex:1;min-width:180px">
       <label>Modèle</label>
       <select id="deviceModel" onchange="onModelChange(this.value)"
@@ -1415,7 +1416,7 @@
     </div>
     <div style="display:flex;gap:8px;align-items:flex-end;padding-bottom:2px">
       <button class="btn btn-primary" id="connectBtn" onclick="connect()">Connecter</button>
-      <button class="btn btn-secondary" style="font-size:11px" onclick="switchTab('settings');setTimeout(()=>document.getElementById('installList')?.scrollIntoView({behavior:'smooth'}),200)">⚙ Gérer</button>
+      <button class="btn btn-secondary" style="font-size:11px" onclick="switchTab('settings')">⚙ Paramètres</button>
       <button class="btn btn-secondary" id="configCollapseBtn" style="font-size:11px;padding:9px 10px;line-height:1" title="Réduire le panneau" onclick="toggleConfigPanel()">
         <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><polyline points="2,9 6.5,4 11,9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </button>
@@ -1433,7 +1434,7 @@
     <button data-tab="solar" class="tab-btn" id="tabBtnSolar" onclick="switchTab('solar')"><svg width="17" height="17" viewBox="0 0 32 32" fill="none" style="display:inline-block;vertical-align:middle;margin-right:5px"><circle cx="16" cy="16" r="4" fill="currentColor"/><circle cx="16" cy="16" r="7" stroke="currentColor" stroke-width="1" stroke-dasharray="3 2.5" opacity=".55"/><circle cx="16" cy="3" r="1.5" fill="currentColor" opacity=".8"/><circle cx="16" cy="29" r="1.5" fill="currentColor" opacity=".8"/><circle cx="3" cy="16" r="1.5" fill="currentColor" opacity=".8"/><circle cx="29" cy="16" r="1.5" fill="currentColor" opacity=".8"/></svg>Solaire</button>
     <button data-tab="history" class="tab-btn" onclick="switchTab('history')"><svg width="17" height="17" viewBox="0 0 32 32" fill="none" style="display:inline-block;vertical-align:middle;margin-right:5px"><polyline points="3,26 8,20 13,22 19,12 26,8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/><circle cx="26" cy="8" r="2" fill="currentColor"/><line x1="3" y1="28" x2="29" y2="28" stroke="currentColor" stroke-width="1" opacity=".3"/><line x1="3" y1="4" x2="3" y2="28" stroke="currentColor" stroke-width="1" opacity=".3"/></svg>Historique</button>
 
-    <button data-tab="compare" class="tab-btn" id="tabBtnCompare" onclick="switchTab('compare')"><svg width="17" height="17" viewBox="0 0 32 32" fill="none" style="display:inline-block;vertical-align:middle;margin-right:5px"><rect x="2" y="6" width="12" height="20" rx="2" stroke="currentColor" stroke-width="1.5" opacity=".6"/><rect x="18" y="6" width="12" height="20" rx="2" stroke="currentColor" stroke-width="1.5" opacity=".6"/><line x1="8" y1="11" x2="8" y2="21" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity=".4"/><line x1="24" y1="11" x2="24" y2="18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity=".4"/></svg>Comparatif</button>
+    
 
     <button data-tab="api" class="tab-btn" onclick="switchTab('api')"><svg width="17" height="17" viewBox="0 0 32 32" fill="none" style="display:inline-block;vertical-align:middle;margin-right:5px"><circle cx="16" cy="16" r="5" stroke="currentColor" stroke-width="1.5"/><circle cx="16" cy="16" r="2" fill="currentColor"/><rect x="14.5" y="2" width="3" height="4" rx="1" fill="currentColor" opacity=".6"/><rect x="14.5" y="26" width="3" height="4" rx="1" fill="currentColor" opacity=".6"/><rect x="2" y="14.5" width="4" height="3" rx="1" fill="currentColor" opacity=".6"/><rect x="26" y="14.5" width="4" height="3" rx="1" fill="currentColor" opacity=".6"/><rect x="5" y="5" width="3" height="4" rx="1" fill="currentColor" opacity=".4" transform="rotate(45 6.5 7)"/><rect x="24" y="5" width="3" height="4" rx="1" fill="currentColor" opacity=".4" transform="rotate(-45 25.5 7)"/><rect x="5" y="23" width="3" height="4" rx="1" fill="currentColor" opacity=".4" transform="rotate(-45 6.5 25)"/><rect x="24" y="23" width="3" height="4" rx="1" fill="currentColor" opacity=".4" transform="rotate(45 25.5 25)"/></svg>API</button>
     <button data-tab="logs" class="tab-btn" id="tabBtnLogs" onclick="switchTab('logs')"><svg width="17" height="17" viewBox="0 0 32 32" fill="none" style="display:inline-block;vertical-align:middle;margin-right:5px"><rect x="4" y="4" width="24" height="24" rx="2" stroke="currentColor" stroke-width="1.5" opacity=".5"/><line x1="9" y1="10" x2="23" y2="10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="9" y1="16" x2="23" y2="16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="9" y1="22" x2="17" y2="22" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="24" cy="22" r="4" fill="currentColor" opacity=".15" stroke="currentColor" stroke-width="1.5"/><line x1="24" y1="20" x2="24" y2="24" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><line x1="22" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>Logs <span id="logBadge" style="display:none;background:var(--danger);color:#fff;font-size:9px;padding:1px 5px;border-radius:100px;margin-left:4px">0</span></button>
@@ -2228,32 +2229,6 @@
   </div>
 
 
-  <!-- ===== TAB: COMPARATIF ===== -->
-  <div class="tab-content" id="tab-compare">
-
-    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:18px">
-      <div class="section-title" style="margin:0">Vue comparative des installations</div>
-      <div style="display:flex;gap:8px;align-items:center">
-        <span id="compareStatus" style="font-size:10px;color:var(--text3)">—</span>
-        <button class="btn btn-secondary" style="font-size:11px;padding:6px 14px" onclick="pollAllInstallations()">↻ Actualiser</button>
-      </div>
-    </div>
-
-    <div id="compareGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px;margin-bottom:28px">
-      <div style="padding:24px;text-align:center;color:var(--text3);font-size:12px;background:var(--bg2);border:1px dashed var(--border);border-radius:var(--radius2);grid-column:1/-1">
-        Aucune installation configurée.<br>Ajoutez des installations dans <strong>Paramètres</strong> puis cliquez <strong>Actualiser</strong>.
-      </div>
-    </div>
-
-    <div id="compareSocSection" style="display:none">
-      <div class="section-title">SOC comparatif</div>
-      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius2);padding:16px 20px;margin-bottom:24px">
-        <canvas id="chartCompareSOC" style="width:100%;height:160px;display:block"></canvas>
-      </div>
-    </div>
-
-  </div>
-
   <!-- ===== TAB: API & CONFIG ===== -->
   <div class="tab-content" id="tab-api">
 
@@ -2265,24 +2240,7 @@
       <div style="display:flex;gap:8px;margin-bottom:16px;align-items:center;flex-wrap:wrap">
         <span style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;white-space:nowrap">Cible :</span>
 
-        <!-- Dropdown installations Indevolt -->
-        <div style="position:relative;display:inline-block">
-          <button id="apiTargetIndevolt"
-            onclick="apiToggleInstallDropdown(event)"
-            style="padding:5px 14px;border-radius:100px;border:1px solid var(--accent);background:rgba(0,229,160,.12);color:var(--accent);font-family:var(--font-body);font-size:11px;font-weight:700;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:6px">
-            <span>⚡</span>
-            <span id="apiTargetInstallName">Indevolt</span>
-            <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><polyline points="2,3 5,7 8,3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </button>
-          <!-- Dropdown liste installations -->
-          <div id="apiInstallDropdown"
-            style="display:none;position:absolute;top:calc(100% + 6px);left:0;z-index:100;min-width:240px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius2);box-shadow:0 8px 24px rgba(0,0,0,.4);overflow:hidden">
-            <div style="padding:8px 12px;font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;border-bottom:1px solid var(--border)">Installations configurées</div>
-            <div id="apiInstallDropdownList" style="padding:4px 0">
-              <!-- rempli par apiRefreshInstallDropdown() -->
-            </div>
-          </div>
-        </div>
+        <button id="apiTargetIndevolt" onclick="apiSetTarget('indevolt')" style="padding:5px 14px;border-radius:100px;border:1px solid var(--accent);background:rgba(0,229,160,.12);color:var(--accent);font-family:var(--font-body);font-size:11px;font-weight:700;cursor:pointer;transition:all .15s">⚡ Indevolt</button>
 
         <!-- Bouton OpenDTU -->
         <button id="apiTargetOpendtu" onclick="apiSetTarget('opendtu')"
@@ -2410,16 +2368,54 @@
   <!-- ===== TAB: PARAMÈTRES ===== -->
   <div class="tab-content" id="tab-settings">
 
-    <!-- ── Installations ──────────────────────────────── -->
-    <div class="section-title">Installations</div>
-    <div id="installList" style="margin-bottom:8px">
-      <!-- Rendu par renderInstallList() -->
-    </div>
-    <button class="btn btn-secondary" onclick="addInstall()" style="font-size:11px;padding:7px 16px;margin-bottom:28px">+ Ajouter une installation</button>
-
-    <!-- Indicateur sauvegarde -->
+        <!-- Indicateur sauvegarde -->
     <div style="display:flex;justify-content:flex-end;margin-bottom:12px">
       <span id="settingsSaveIndicator" style="font-size:11px;color:var(--accent);opacity:0;transition:opacity .5s">✅ Sauvegardé</span>
+    </div>
+
+    <!-- Installation -->
+    <div class="section-title"><svg width="17" height="17" viewBox="0 0 32 32" fill="none" style="display:inline-block;vertical-align:middle;margin-right:5px"><rect x="4" y="8" width="20" height="16" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M4 13h24" stroke="currentColor" stroke-width="1.5"/><circle cx="9" cy="19" r="1.5" fill="currentColor"/></svg>Installation</div>
+    <div class="spec-card" style="margin-bottom:16px">
+      <div style="display:grid;grid-template-columns:1fr 80px;gap:12px;margin-bottom:12px">
+        <div class="config-field">
+          <label>Adresse IP de l'onduleur</label>
+          <input type="text" id="settingIP" placeholder="192.168.1.71"
+            style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);color:var(--text);font-size:13px;padding:7px 10px;box-sizing:border-box"
+            oninput="saveSettings()">
+        </div>
+        <div class="config-field">
+          <label>Port</label>
+          <input type="number" id="settingPort" value="8080"
+            style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);color:var(--text);font-size:13px;padding:7px 10px;box-sizing:border-box"
+            oninput="saveSettings()">
+        </div>
+      </div>
+      <div class="config-field" style="margin-bottom:12px">
+        <label>Modèle</label>
+        <select id="settingModel" onchange="onModelChange(this.value);saveSettings()"
+          style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);color:var(--text);font-size:13px;padding:7px 10px;box-sizing:border-box">
+          <option value="solidflex_eco">SolidFlex 2000 ECO (sans MPPT)</option>
+          <option value="solidflex_eco_opendtu">SolidFlex 2000 ECO + OpenDTU ☀️</option>
+          <option value="solidflex">SolidFlex 2000 / PowerFlex 2000 (avec MPPT)</option>
+          <option value="bk1600">BK1600 / BK1600 Ultra</option>
+        </select>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div class="config-field">
+          <label>Capacité installée (Wh)</label>
+          <input type="number" id="settingCapacity" value="3584" min="1792" max="10752"
+            style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);color:var(--text);font-size:13px;padding:7px 10px;box-sizing:border-box"
+            oninput="saveSettings()">
+          <div style="font-size:10px;color:var(--text3);margin-top:3px">1702 + 1800 × nb de SFA1800</div>
+        </div>
+        <div class="config-field">
+          <label>Limite export réseau (W)</label>
+          <input type="number" id="settingFeedLimit" value="500" min="0" max="6000"
+            style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);color:var(--text);font-size:13px;padding:7px 10px;box-sizing:border-box"
+            oninput="saveSettings()">
+          <div style="font-size:10px;color:var(--text3);margin-top:3px">Alerte si export dépasse cette valeur</div>
+        </div>
+      </div>
     </div>
 
     <!-- Alertes batterie -->
@@ -2440,16 +2436,7 @@
             <button class="btn btn-secondary" style="font-size:10px;padding:4px 10px;margin-left:4px" onclick="Notification && Notification.requestPermission().then(p => showToast(p === 'granted' ? '✅ Notifications activées' : '❌ Notifications refusées'))">🔔 Activer notifs</button>
           </div>
         </div>
-        <div class="config-field">
-          <label>Capacité totale installée (Wh)</label>
-          <input type="number" id="settingCapacity" value="3584" min="1792" max="10752" style="width:140px" oninput="saveSettings()">
-          <div style="font-size:10px;color:var(--text3);margin-top:4px">1792 + 1800 × nb de SFA1800</div>
-        </div>
-        <div class="config-field">
-          <label>Limite export réseau (W)</label>
-          <input type="number" id="settingFeedLimit" value="500" min="0" max="6000" style="width:140px" oninput="saveSettings()">
-          <div style="font-size:10px;color:var(--text3);margin-top:4px">Alerte si export dépasse cette valeur</div>
-        </div>
+
       </div>
     </div>
 
@@ -2993,13 +2980,9 @@ function collapseConfigPanel() {
   if (!panel || panel.classList.contains('collapsed')) return;
 
   // Remplir le bandeau compact
-  const inst  = getActiveInstall();
-  const nameEl  = document.getElementById('configBarName');
-  const modelEl = document.getElementById('configBarModel');
-  const dotEl   = document.getElementById('configBarDot');
-  if (nameEl)  nameEl.textContent  = inst ? inst.name : (state.ip || '—');
-  if (modelEl) modelEl.textContent = document.getElementById('deviceModel')?.selectedOptions[0]?.text || '';
-  if (dotEl)   dotEl.className     = 'status-dot online';
+  updateConfigBar();
+  const dotEl = document.getElementById('configBarDot');
+  if (dotEl) dotEl.className = 'status-dot online';
 
   panel.classList.add('collapsed');
   if (fields) fields.style.display = 'none';
@@ -3039,7 +3022,7 @@ function formatKwh(v) { return v != null ? Number(v).toFixed(2) : '—'; }
 
 // ==================== TABS ====================
 // Ordre des onglets pour swipe
-const TAB_ORDER = ['live','packs','solar','history','compare','api','logs','settings'];
+const TAB_ORDER = ['live','packs','solar','history','api','logs','settings'];
 
 function switchTab(id) {
   document.querySelectorAll('.tab-btn').forEach(b => {
@@ -3051,7 +3034,7 @@ function switchTab(id) {
   });
   window._currentTab = id;
   // Charger les données comparatives si on ouvre l'onglet comparatif
-  if (id === 'compare' && settings.installations.length > 0) pollAllInstallations();
+  
   if (id === 'packs')   { renderScheduleTimeline(); }
   if (id === 'history') { requestAnimationFrame(() => { draw30DayChart(); drawWeekCompare(); }); }
   if (id === 'logs')    { renderEventJournal(); }
@@ -3181,13 +3164,10 @@ function cycleTheme() {
 }
 
 function connect() {
-  // Synchroniser depuis l'installation active
-  const activeInst = getActiveInstall();
-  if (activeInst) {
-    document.getElementById('deviceIP').value    = activeInst.ip;
-    document.getElementById('devicePort').value  = activeInst.port || 8080;
-    document.getElementById('deviceModel').value = activeInst.model;
-  }
+  // Synchroniser depuis settings
+  if (settings.ip)    { const _e = document.getElementById('deviceIP');    if (_e) _e.value = settings.ip; }
+  if (settings.port)  { const _e = document.getElementById('devicePort');  if (_e) _e.value = settings.port || 8080; }
+  if (settings.model) { const _e = document.getElementById('deviceModel'); if (_e) _e.value = settings.model; }
   const rawIP = document.getElementById('deviceIP').value.trim();
   const ipInput = document.getElementById('deviceIP');
   // P13 — validation format IP
@@ -5599,6 +5579,8 @@ async function _setModeDirect(payload, modeLabel) {
 
 // ==================== SETTINGS ====================
 const settings = {
+  ip: '', port: 8080, model: 'solidflex_eco',
+  capacity: 3584, feedLimit: 500,
   socAlert: 20,
   socSound: true,
   capacity: 3584,
@@ -5629,9 +5611,6 @@ const settings = {
   scheduleSlots: [],   // [{id, start:'HH:MM', end:'HH:MM', mode:'auto'|'charge'|'discharge'|'schedule', socTarget:null}]
   forceChargeSOC:  80, // SOC cible forçage charge
   forceDischargeSOC: 20, // SOC cible forçage décharge
-  // ── Multi-installations ──────────────────────────────
-  installations: [],
-  activeInstallId: null,
 };
 
 // ── Zoom graphiques temps réel ───────────────────────
@@ -5758,192 +5737,28 @@ function getFilteredHistDays() {
   return { hist, days };
 }
 
-// ── Helpers multi-installations ──────────────────────
-function getActiveInstall() {
-  return settings.installations.find(i => i.id === settings.activeInstallId)
-      || settings.installations[0];
+function updateConfigBar() {
+  const nameEl  = document.getElementById('configBarName');
+  const modelEl = document.getElementById('configBarModel');
+  if (nameEl)  nameEl.textContent = settings.ip || state.ip || '—';
+  // Synchroniser le select du bandeau avec le modèle actif
+  if (modelEl && modelEl.tagName === 'SELECT') {
+    modelEl.value = settings.model || state.model || 'solidflex_eco';
+  }
 }
 
 function onModelChange(model) {
-  // Mettre à jour l'installation active
-  const inst = getActiveInstall();
-  if (inst) {
-    inst.model = model;
-    state.model = model;
-    saveSettings();
-  }
+  settings.model = model;
+  state.model    = model;
+  // Synchroniser TOUS les selects modèle avant saveSettings()
+  // pour éviter que saveSettings() relise une ancienne valeur
+  ['deviceModel','settingModel','configBarModel'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = model;
+  });
+  saveSettings();
   applyModel(model);
-}
-
-function switchInstallation(id) {
-  const inst = settings.installations.find(i => i.id === id);
-  if (!inst) return;
-  // Arrêter le polling actuel
-  if (state.timer) { clearInterval(state.timer); state.timer = null; }
-  settings.activeInstallId = id;
-  // Mettre à jour state depuis l'installation
-  state.ip    = inst.ip;
-  state.port  = inst.port || 8080;
-  state.model = inst.model;
-  state.connected = false;
-  state.data = null;
-  // Mettre à jour l'UI
-  renderInstallSelector();
-  applyModel(inst.model);
-  const _dot = document.getElementById('statusDot');
-  const _txt = document.getElementById('statusText');
-  if (_dot) _dot.className   = 'status-dot';
-  if (_txt) _txt.textContent = 'Déconnecté';
-  document.getElementById('lastUpdate').textContent  = '—';
-  // Reconnecter automatiquement
-  connect();
-  saveSettings();
-}
-
-function renderInstallSelector() {
-  const sel = document.getElementById('installSelector');
-  if (!sel) return;
-  if (settings.installations.length === 0) {
-    sel.innerHTML = '<option value="">— Aucune installation —</option>';
-    return;
-  }
-  sel.innerHTML = settings.installations.map(inst =>
-    `<option value="${inst.id}" ${inst.id === settings.activeInstallId ? 'selected' : ''}>${inst.name} (${inst.ip})</option>`
-  ).join('');
-  // Synchroniser le select modèle avec l'installation active
-  const active = getActiveInstall();
-  if (active) {
-    const modelSel = document.getElementById('deviceModel');
-    if (modelSel) modelSel.value = active.model || 'solidflex_eco';
-  }
-}
-
-function renderInstallList() {
-  const list = document.getElementById('installList');
-  if (!list) return;
-  if (settings.installations.length === 0) {
-    list.innerHTML = `<div style="padding:20px;text-align:center;color:var(--text3);font-size:12px;background:var(--bg3);border:1px dashed var(--border);border-radius:var(--radius)">
-      Aucune installation configurée.<br>Cliquez sur <strong>+ Ajouter</strong> pour commencer.
-    </div>`;
-    return;
-  }
-  list.innerHTML = settings.installations.map((inst, idx) => `
-    <div data-inst-idx="${idx}" style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:8px">
-      <div style="flex:1;min-width:0">
-        <div style="font-size:12px;font-weight:700;color:var(--text)">${inst.name}</div>
-        <div style="font-size:10px;color:var(--text3)">${inst.ip}:${inst.port||8080} · ${inst.model}</div>
-      </div>
-      <div style="display:flex;gap:6px;align-items:center">
-        ${inst.id === settings.activeInstallId
-          ? '<span style="font-size:10px;color:var(--accent);padding:3px 8px;border:1px solid var(--accent);border-radius:100px">Actif</span>'
-          : `<button class="btn btn-secondary" style="font-size:10px;padding:4px 10px" onclick="switchInstallation('${inst.id}')">Activer</button>`}
-        <button class="btn btn-secondary" style="font-size:10px;padding:4px 10px" onclick="editInstall(${idx})">✏️ Modifier</button>
-        ${settings.installations.length > 1
-          ? `<button class="btn btn-secondary" style="font-size:10px;padding:4px 10px;color:var(--danger);border-color:var(--danger)" onclick="deleteInstall('${inst.id}')">🗑</button>`
-          : ''}
-      </div>
-    </div>`).join('');
-}
-
-function addInstall() {
-  const id = 'inst_' + Date.now();
-  settings.installations.push({ id, name: 'Nouvelle installation', ip: '192.168.1.100', port: 8080, model: 'solidflex_eco' });
-  if (!settings.activeInstallId) settings.activeInstallId = id;
-  renderInstallList();
-  // Ouvrir directement le formulaire sur la nouvelle carte
-  editInstall(settings.installations.length - 1);
-  saveSettings();
-}
-
-function deleteInstall(id) {
-  if (settings.installations.length <= 1) return;
-  settings.installations = settings.installations.filter(i => i.id !== id);
-  if (settings.activeInstallId === id) switchInstallation(settings.installations[0].id);
-  renderInstallList();
-  renderInstallSelector();
-  saveSettings();
-}
-
-function editInstall(idx) {
-  const inst = settings.installations[idx];
-  if (!inst) return;
-
-  const list = document.getElementById('installList');
-  if (!list) return;
-
-  const formId = 'editInstallForm_' + idx;
-  if (document.getElementById(formId)) { renderInstallList(); return; }
-
-  const isNew = inst.name === 'Nouvelle installation' && inst.ip === '192.168.1.100';
-  const formTitle = isNew ? 'Ajouter une installation' : "Modifier l'installation";
-
-  const modelOpts = [
-    ['solidflex_eco',        'SolidFlex 2000 ECO (sans MPPT)'],
-    ['solidflex_eco_opendtu','SolidFlex 2000 ECO + OpenDTU ☀️'],
-    ['solidflex',            'SolidFlex 2000 / PowerFlex 2000 (avec MPPT)'],
-    ['bk1600',               'BK1600 / BK1600 Ultra'],
-  ].map(([v,l]) => `<option value="${v}" ${inst.model===v?'selected':''}>${l}</option>`).join('');
-
-  const card = list.querySelector(`[data-inst-idx="${idx}"]`);
-  const form = document.createElement('div');
-  form.id = formId;
-  form.style.cssText = 'background:var(--bg3);border:1px solid var(--accent);border-radius:var(--radius);padding:14px 16px;margin-bottom:8px';
-  form.innerHTML = `
-    <div style="font-size:11px;font-weight:700;color:var(--accent);margin-bottom:12px;text-transform:uppercase;letter-spacing:.08em">${formTitle}</div>
-    <div style="display:grid;gap:10px">
-      <div>
-        <label style="font-size:10px;color:var(--text3);display:block;margin-bottom:4px">Nom</label>
-        <input id="ef_name" type="text" value="${isNew ? '' : inst.name}" placeholder="ex : Batterie principale" style="width:100%;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);color:var(--text);font-size:13px;padding:7px 10px;box-sizing:border-box">
-      </div>
-      <div style="display:grid;grid-template-columns:1fr 100px;gap:8px">
-        <div>
-          <label style="font-size:10px;color:var(--text3);display:block;margin-bottom:4px">Adresse IP</label>
-          <input id="ef_ip" type="text" value="${isNew ? '' : inst.ip}" placeholder="192.168.1.100" style="width:100%;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);color:var(--text);font-size:13px;padding:7px 10px;box-sizing:border-box">
-        </div>
-        <div>
-          <label style="font-size:10px;color:var(--text3);display:block;margin-bottom:4px">Port</label>
-          <input id="ef_port" type="number" value="${inst.port||8080}" style="width:100%;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);color:var(--text);font-size:13px;padding:7px 10px;box-sizing:border-box">
-        </div>
-      </div>
-      <div>
-        <label style="font-size:10px;color:var(--text3);display:block;margin-bottom:4px">Modèle</label>
-        <select id="ef_model" style="width:100%;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);color:var(--text);font-size:13px;padding:7px 10px;box-sizing:border-box">${modelOpts}</select>
-      </div>
-    </div>
-    <div style="display:flex;gap:8px;margin-top:14px">
-      <button class="btn btn-primary" style="font-size:11px;padding:7px 18px" onclick="saveInstallEdit(${idx})">${isNew ? 'Ajouter' : 'Enregistrer'}</button>
-      <button class="btn btn-secondary" style="font-size:11px;padding:7px 14px" onclick="${isNew ? `deleteInstall('${inst.id}')` : 'renderInstallList()'}">Annuler</button>
-    </div>`;
-
-  if (card) { list.replaceChild(form, card); }
-  else { list.appendChild(form); }
-}
-
-
-function saveInstallEdit(idx) {
-  const inst = settings.installations[idx];
-  if (!inst) return;
-  const name  = document.getElementById('ef_name')?.value.trim();
-  const ip    = document.getElementById('ef_ip')?.value.trim();
-  const port  = parseInt(document.getElementById('ef_port')?.value) || 8080;
-  const model = document.getElementById('ef_model')?.value;
-  if (!ip || !/^(\d{1,3}\.){3}\d{1,3}$/.test(ip)) {
-    document.getElementById('ef_ip').style.border = '1px solid var(--danger)';
-    return;
-  }
-  inst.name  = name  || inst.name;
-  inst.ip    = ip;
-  inst.port  = port;
-  inst.model = model || inst.model;
-  renderInstallList();
-  renderInstallSelector();
-  if (inst.id === settings.activeInstallId) {
-    state.ip   = inst.ip;
-    state.port = inst.port;
-    state.model = inst.model;
-    applyModel(inst.model);
-  }
-  saveSettings();
+  updateConfigBar();
 }
 
 const SETTINGS_API = '/api/settings';
@@ -6010,10 +5825,8 @@ async function loadSettings() {
       const data = await res.json();
       Object.assign(settings, data);
       // S'assurer que installations est un tableau valide
-      if (!Array.isArray(settings.installations) || settings.installations.length === 0) {
-        settings.installations = [{ id:'inst_1', name:'Batterie principale', ip:'192.168.1.100', port:8080, model:'solidflex_eco' }];
-      }
-      if (!settings.activeInstallId) settings.activeInstallId = settings.installations[0].id;
+      
+      
       logger.debug('Paramètres chargés depuis le serveur');
     }
   } catch(e) {
@@ -6028,10 +5841,13 @@ async function loadSettings() {
 }
 
 function _applySettingsToDOM() {
-  document.getElementById('settingSOCAlert').value    = settings.socAlert;
+  const _sip = document.getElementById('settingIP');   if (_sip) _sip.value = settings.ip || state.ip || '';
+  const _spt = document.getElementById('settingPort');  if (_spt) _spt.value = settings.port || 8080;
+  const _smd = document.getElementById('settingModel'); if (_smd) _smd.value = settings.model || state.model || 'solidflex_eco';
+  const _cap = document.getElementById('settingCapacity');  if (_cap) _cap.value = settings.capacity || 3584;
+  const _fld = document.getElementById('settingFeedLimit'); if (_fld) _fld.value = settings.feedLimit || 500;
+  document.getElementById('settingSOCAlert').value    = settings.socAlert || 20;
   document.getElementById('settingSOCSound').checked  = settings.socSound;
-  document.getElementById('settingCapacity').value    = settings.capacity;
-  document.getElementById('settingFeedLimit').value   = settings.feedLimit;
   document.getElementById('settingPriceImport').value = settings.priceImport;
   document.getElementById('settingPriceExport').value = settings.priceExport;
   // Thème
@@ -6061,11 +5877,24 @@ function _applySettingsToDOM() {
 
 let _saveTimer = null;
 function saveSettings() {
+  // Connexion (champs dans section Installation)
+  const _sip = document.getElementById('settingIP');
+  if (_sip && _sip.value.trim()) {
+    settings.ip = _sip.value.trim(); state.ip = settings.ip;
+    const _lip = document.getElementById('deviceIP'); if (_lip) _lip.value = settings.ip;
+  }
+  const _spt = document.getElementById('settingPort');
+  if (_spt) { settings.port = parseInt(_spt.value) || 8080; state.port = settings.port;
+    const _lpt = document.getElementById('devicePort'); if (_lpt) _lpt.value = settings.port; }
+  const _smd = document.getElementById('settingModel');
+  if (_smd) { settings.model = _smd.value;
+    const _lmd = document.getElementById('deviceModel'); if (_lmd) _lmd.value = settings.model; }
+  updateConfigBar();
+  settings.capacity  = parseFloat(document.getElementById('settingCapacity')?.value)  || 3584;
+  settings.feedLimit = parseFloat(document.getElementById('settingFeedLimit')?.value) || 500;
   // Lire les valeurs du DOM
   settings.socAlert        = parseFloat(document.getElementById('settingSOCAlert').value)    || 20;
   settings.socSound        = document.getElementById('settingSOCSound').checked;
-  settings.capacity        = parseFloat(document.getElementById('settingCapacity').value)    || 3584;
-  settings.feedLimit       = parseFloat(document.getElementById('settingFeedLimit').value)   || 500;
   settings.priceImport     = parseFloat(document.getElementById('settingPriceImport').value) || 0.2516;
   const _oipEl = document.getElementById('settingOpendtuIp'); if (_oipEl) { settings.opendtuIp = _oipEl.value.trim() || '192.168.1.121'; state.opendtu.ip = settings.opendtuIp; }
   const _latSave = document.getElementById('settingWeatherLat'); if (_latSave) settings.weatherLat = _latSave.value.trim() || '48.5734';
@@ -6420,189 +6249,6 @@ function _highlightActiveSlot(activeSlot) {
     slotDivs[idx].style.boxShadow = '0 0 0 2px var(--accent)';
     slotDivs[idx].dataset.active = '1';
   }
-}
-
-
-// ==================== VUE COMPARATIVE ====================
-
-window._compareData   = {};
-window._compareTimer  = null;
-
-async function _fetchInstData(inst) {
-  const REGS = [6002,6000,2108,2101,9012,9004,142,6004,6005];
-  //            SOC  batPw acOut acIn  temp  volt opSt dailyCh dailyDis
-  // Utiliser le même format ET la même méthode que fetchData (POST via proxy nginx)
-  const config = encodeURIComponent(JSON.stringify({ t: REGS }).replace(/ /g,''));
-  const url = `/indevolt-api/${inst.ip}/Indevolt.GetData?config=${config}`;
-  try {
-    const res = await fetch(url, { method: 'POST', signal: AbortSignal.timeout(6000) });
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    const raw = JSON.parse(await res.text());
-    if (raw.error) throw new Error(raw.error);
-    const soc      = raw[6002] != null ? raw[6002]          : null;  // % direct
-    const batPower = raw[6000] != null ? raw[6000]          : null;  // W direct
-    const acOut    = raw[2108] != null ? raw[2108]          : null;  // W direct
-    const acIn     = raw[2101] != null ? raw[2101]          : null;  // W direct
-    const batTemp  = raw[9012] != null ? raw[9012]           : null;  // °C direct
-    const batVolt  = raw[9004] != null ? raw[9004] / 10     : null;  // V ×10
-    const opState  = raw[142]  != null ? raw[142]           : null;
-    const dailyCh  = raw[6004] != null ? raw[6004] / 1000   : null;  // Wh → kWh
-    const dailyDis = raw[6005] != null ? raw[6005] / 1000   : null;  // Wh → kWh
-    if (soc === null && batPower === null && acOut === null) throw new Error('Données vides');
-    return { ok: true, soc, batPower, acOut, acIn, batTemp, batVolt, opState, dailyCh, dailyDis };
-  } catch(e) {
-    return { ok: false, error: e.message };
-  }
-}
-
-async function pollAllInstallations() {
-  const insts = settings.installations;
-  if (!insts || insts.length === 0) {
-    const el = document.getElementById('compareStatus');
-    if (el) el.textContent = 'Aucune installation configurée';
-    return;
-  }
-  const statusEl = document.getElementById('compareStatus');
-  if (statusEl) statusEl.textContent = '⟳ Interrogation en cours…';
-
-  const results = await Promise.allSettled(
-    insts.map(inst => _fetchInstData(inst).then(data => ({ inst, data })))
-  );
-
-  results.forEach(r => {
-    if (r.status === 'fulfilled') {
-      const { inst, data } = r.value;
-      window._compareData[inst.id] = {
-        ...data, name: inst.name, ip: inst.ip, model: inst.model, id: inst.id, ts: Date.now(),
-      };
-    }
-  });
-
-  const now = new Date().toLocaleTimeString('fr-FR', { hour:'2-digit', minute:'2-digit', second:'2-digit' });
-  if (statusEl) statusEl.textContent = 'Mis à jour ' + now;
-  renderCompareView();
-}
-
-function renderCompareView() {
-  const grid = document.getElementById('compareGrid');
-  if (!grid) return;
-  const entries = Object.values(window._compareData);
-  if (entries.length === 0) {
-    grid.innerHTML = '<div style="padding:24px;text-align:center;color:var(--text3);font-size:12px;background:var(--bg2);border:1px dashed var(--border);border-radius:var(--radius2);grid-column:1/-1">Cliquez <strong>Actualiser</strong> pour charger les données.</div>';
-    return;
-  }
-
-  grid.innerHTML = entries.map(e => {
-    const age       = e.ts ? Math.round((Date.now() - e.ts) / 1000) : null;
-    const fresh     = age !== null && age < 90;
-    const isActive  = e.id === settings.activeInstallId;
-    const socColor  = e.soc == null ? 'var(--text3)' : e.soc >= 60 ? 'var(--accent)' : e.soc >= 30 ? '#f5c842' : 'var(--danger)';
-    const batDir    = e.batPower == null ? '—' : e.batPower > 20 ? '⬆ Charge' : e.batPower < -20 ? '⬇ Décharge' : '⬌ Veille';
-    const batColor  = e.batPower > 20 ? 'var(--accent)' : e.batPower < -20 ? '#f5803a' : 'var(--text3)';
-    const stColor   = e.ok ? (fresh ? 'var(--accent)' : '#f5c842') : 'var(--danger)';
-    const stText    = e.ok ? (fresh ? '● En ligne' : '⚠ Données anciennes') : '✕ Hors ligne';
-    const badge     = isActive ? '<span style="font-size:9px;padding:2px 7px;border:1px solid var(--accent);border-radius:100px;color:var(--accent)">Actif</span>' : '';
-    const tempColor = e.batTemp != null && e.batTemp > (settings.tempAlert||45) ? 'var(--danger)' : 'var(--text)';
-
-    return `<div style="background:var(--bg2);border:1px solid ${e.ok ? 'var(--border)' : '#f0606033'};border-radius:var(--radius2);padding:18px 20px">
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px">
-        <div>
-          <div style="font-size:12px;font-weight:700;color:var(--text)">${e.name}</div>
-          <div style="font-size:10px;color:var(--text3)">${e.ip} · ${e.model}</div>
-        </div>
-        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">
-          <span style="font-size:10px;color:${stColor}">${stText}</span>${badge}
-        </div>
-      </div>
-      <div style="margin-bottom:12px">
-        <div style="display:flex;justify-content:space-between;margin-bottom:5px">
-          <span style="font-size:10px;color:var(--text3)">SOC</span>
-          <span style="font-size:20px;font-weight:700;font-family:var(--font-mono);color:${socColor};line-height:1">${e.soc != null ? Math.round(e.soc)+'%' : '—'}</span>
-        </div>
-        <div style="height:6px;background:var(--bg3);border-radius:3px;overflow:hidden">
-          <div style="height:100%;width:${e.soc ?? 0}%;background:${socColor};border-radius:3px;transition:width .4s"></div>
-        </div>
-      </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-        <div style="background:var(--bg3);border-radius:var(--radius);padding:8px 10px">
-          <div style="font-size:9px;color:var(--text3);margin-bottom:2px">Batterie</div>
-          <div style="font-size:13px;font-weight:700;font-family:var(--font-mono);color:${batColor}">${e.batPower != null ? Math.abs(Math.round(e.batPower))+' W' : '—'}</div>
-          <div style="font-size:9px;color:${batColor}">${batDir}</div>
-        </div>
-        <div style="background:var(--bg3);border-radius:var(--radius);padding:8px 10px">
-          <div style="font-size:9px;color:var(--text3);margin-bottom:2px">Sortie AC</div>
-          <div style="font-size:13px;font-weight:700;font-family:var(--font-mono);color:var(--text)">${e.acOut != null ? Math.round(e.acOut)+' W' : '—'}</div>
-          <div style="font-size:9px;color:var(--text3)">Consommation</div>
-        </div>
-        <div style="background:var(--bg3);border-radius:var(--radius);padding:8px 10px">
-          <div style="font-size:9px;color:var(--text3);margin-bottom:2px">Réseau</div>
-          <div style="font-size:13px;font-weight:700;font-family:var(--font-mono);color:#60b0f0">${e.acIn != null ? Math.round(e.acIn)+' W' : '—'}</div>
-          <div style="font-size:9px;color:var(--text3)">Import/Export</div>
-        </div>
-        <div style="background:var(--bg3);border-radius:var(--radius);padding:8px 10px">
-          <div style="font-size:9px;color:var(--text3);margin-bottom:2px">Température</div>
-          <div style="font-size:13px;font-weight:700;font-family:var(--font-mono);color:${tempColor}">${e.batTemp != null ? e.batTemp.toFixed(1)+' °C' : '—'}</div>
-          <div style="font-size:9px;color:var(--text3)">Batterie</div>
-        </div>
-      </div>
-      ${(e.dailyCh != null || e.dailyDis != null) ? `<div style="display:flex;gap:8px;margin-top:10px"><div style="flex:1;font-size:10px;color:var(--text3)">⬆ ${e.dailyCh != null ? e.dailyCh.toFixed(2)+' kWh' : '—'} chargés</div><div style="flex:1;font-size:10px;color:var(--text3);text-align:right">⬇ ${e.dailyDis != null ? e.dailyDis.toFixed(2)+' kWh' : '—'} déchargés</div></div>` : ''}
-      <div style="margin-top:12px;text-align:right">
-        <button class="btn btn-secondary" style="font-size:10px;padding:4px 12px" onclick="switchInstallation('${e.id}');switchTab('live')">→ Basculer</button>
-      </div>
-    </div>`;
-  }).join('');
-
-  _drawCompareSOC(entries);
-}
-
-function _drawCompareSOC(entries) {
-  const section = document.getElementById('compareSocSection');
-  const canvas  = document.getElementById('chartCompareSOC');
-  if (!canvas) return;
-  const valid = entries.filter(e => e.ok && e.soc != null);
-  if (valid.length < 2) { if (section) section.style.display = 'none'; return; }
-  if (section) section.style.display = '';
-  const dpr = window.devicePixelRatio || 1;
-  const W = (canvas.offsetWidth || 600) * dpr, H = 160 * dpr;
-  canvas.width = W; canvas.height = H;
-  const ctx = canvas.getContext('2d');
-  ctx.clearRect(0,0,W,H);
-  const pad = { top:20, right:20, bottom:36, left:16 };
-  const gw = W - pad.left - pad.right, gh = H - pad.top - pad.bottom;
-  const n = valid.length;
-  const bw = Math.min(80*dpr, gw/n*0.7);
-  const colors = ['#00e5a0','#60b0f0','#f5c842','#f5803a','#b482dc','#e05a5a'];
-  [25,50,75,100].forEach(pct => {
-    const y = pad.top + gh*(1-pct/100);
-    ctx.strokeStyle=cc.grid; ctx.lineWidth=1;
-    ctx.beginPath(); ctx.moveTo(pad.left,y); ctx.lineTo(W-pad.right,y); ctx.stroke();
-    ctx.fillStyle=cc.label; ctx.font=(9*dpr)+'px monospace'; ctx.textAlign='right';
-    ctx.fillText(pct+'%', W-pad.right-2, y-2*dpr);
-  });
-  valid.forEach((e,i) => {
-    const col = colors[i % colors.length];
-    const bh  = (e.soc/100)*gh;
-    const x   = pad.left + (i/n)*gw + (gw/n-bw)/2;
-    const y   = pad.top + gh - bh;
-    const grad = ctx.createLinearGradient(0,y,0,pad.top+gh);
-    grad.addColorStop(0,col+'cc'); grad.addColorStop(1,col+'22');
-    ctx.fillStyle=grad;
-    ctx.beginPath();
-    if (ctx.roundRect) ctx.roundRect(x,y,bw,bh,3); else ctx.rect(x,y,bw,bh);
-    ctx.fill();
-    ctx.fillStyle=col; ctx.font='bold '+(10*dpr)+'px monospace'; ctx.textAlign='center';
-    ctx.fillText(Math.round(e.soc)+'%', x+bw/2, y-3*dpr);
-    ctx.fillStyle=cc.label3; ctx.font=(9*dpr)+'px monospace';
-    const lbl = e.name.length>12 ? e.name.slice(0,11)+'…' : e.name;
-    ctx.fillText(lbl, x+bw/2, H-8*dpr);
-  });
-}
-
-function _startCompareRefresh() {
-  if (window._compareTimer) clearInterval(window._compareTimer);
-  window._compareTimer = setInterval(() => {
-    if (window._currentTab === 'compare') pollAllInstallations();
-  }, 30000);
 }
 
 
@@ -7000,8 +6646,8 @@ function logEvent(type, severity, title, detail) {
     severity:  severity || 'info',
     title,
     detail:    detail || '',
-    installId: settings.activeInstallId || null,
-    installName: (getActiveInstall() || {}).name || '—',
+    installId: null,
+    installName: settings.ip || '—',
   };
   window._eventLog.unshift(ev);
   if (window._eventLog.length > EVENT_MAX) window._eventLog.length = EVENT_MAX;
@@ -7171,7 +6817,7 @@ function setEvFilter(type) {
 function exportEventPDF() {
   const events = window._eventLog;
   if (events.length === 0) { showToast('Aucun événement à exporter'); return; }
-  const install = (getActiveInstall() || {}).name || 'Indevolt';
+  const install = settings.ip || 'Indevolt';
   const now = new Date().toLocaleString('fr-FR');
   const rows = events.map(ev => {
     const meta = EVENT_META[ev.type] || EVENT_META.system;
@@ -7232,7 +6878,7 @@ function clearEventLog() {
 
 let _apiLastJson         = null;
 let _apiTarget           = 'indevolt'; // 'indevolt' | 'opendtu'
-let _apiSelectedInstallId = null;      // null = installation active du dashboard
+      // null = installation active du dashboard
 
 const API_SHORTCUTS = {
   indevolt: [
@@ -7252,91 +6898,13 @@ const API_SHORTCUTS = {
   ]
 };
 
-// Retourne l'installation sélectionnée dans la console (≠ installation active du dashboard)
-function _apiGetTargetInstall() {
-  if (_apiSelectedInstallId) {
-    return settings.installations.find(i => i.id === _apiSelectedInstallId) || getActiveInstall();
-  }
-  return getActiveInstall();
-}
-
-// Remplit et affiche/cache le dropdown des installations
-function apiRefreshInstallDropdown() {
-  const list = document.getElementById('apiInstallDropdownList');
-  if (!list) return;
-  const installs = settings.installations || [];
-  if (installs.length === 0) {
-    list.innerHTML = '<div style="padding:10px 14px;font-size:11px;color:var(--text3)">Aucune installation configurée</div>';
-    return;
-  }
-  const activeId = _apiSelectedInstallId || getActiveInstall()?.id;
-  list.innerHTML = installs.map(inst => {
-    const isSelected = inst.id === activeId;
-    return `<div onclick="apiSelectInstall('${inst.id}')"
-      style="padding:9px 14px;cursor:pointer;display:flex;align-items:center;gap:10px;
-             background:${isSelected ? 'rgba(0,229,160,.08)' : 'transparent'};
-             transition:background .12s"
-      onmouseover="this.style.background='rgba(0,229,160,.05)'"
-      onmouseout="this.style.background='${isSelected ? 'rgba(0,229,160,.08)' : 'transparent'}'">
-      <div style="width:7px;height:7px;border-radius:50%;background:${isSelected ? 'var(--accent)' : 'var(--border)'}; flex-shrink:0"></div>
-      <div style="flex:1;min-width:0">
-        <div style="font-size:12px;font-weight:700;color:${isSelected ? 'var(--accent)' : 'var(--text)'};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${inst.name}</div>
-        <div style="font-size:10px;color:var(--text3)">${inst.ip}:${inst.port || 8080} · ${inst.model || '—'}</div>
-      </div>
-      ${isSelected ? '<svg width="12" height="12" viewBox="0 0 12 12" fill="none"><polyline points="2,6 5,9 10,3" stroke="var(--accent)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>' : ''}
-    </div>`;
-  }).join('');
-}
-
-function apiToggleInstallDropdown(e) {
-  e.stopPropagation();
-  // Fermer si déjà ouvert
-  const dd = document.getElementById('apiInstallDropdown');
-  if (!dd) return;
-  const isOpen = dd.style.display !== 'none';
-  if (isOpen) { dd.style.display = 'none'; return; }
-  // Sinon : s'assurer qu'on est en mode indevolt, rafraîchir et ouvrir
-  _apiTarget = 'indevolt';
-  _apiApplyTargetStyles();
-  apiRefreshInstallDropdown();
-  dd.style.display = 'block';
-  // Fermeture au clic extérieur
-  setTimeout(() => document.addEventListener('click', _apiCloseDropdown, { once: true }), 10);
-}
-
-function _apiCloseDropdown() {
-  const dd = document.getElementById('apiInstallDropdown');
-  if (dd) dd.style.display = 'none';
-}
-
-function apiSelectInstall(id) {
-  _apiSelectedInstallId = id;
-  _apiTarget = 'indevolt';
-  const inst = settings.installations.find(i => i.id === id);
-  // Mettre à jour le label du bouton
-  const nameEl = document.getElementById('apiTargetInstallName');
-  if (nameEl && inst) nameEl.textContent = inst.name;
-  _apiCloseDropdown();
-  _apiApplyTargetStyles();
-  _apiUpdateBaseUrl();
-  _apiUpdateShortcuts();
-  // Badge IP
-  const ipBadge = document.getElementById('apiTargetIpBadge');
-  if (ipBadge && inst) ipBadge.textContent = `→ ${inst.ip}:${inst.port || 8080}`;
-  apiClear();
-}
-
 function apiSetTarget(target) {
   _apiTarget = target;
   if (target === 'indevolt') {
-    // Réinitialiser sur l'installation active du dashboard
-    _apiSelectedInstallId = null;
-    const inst = getActiveInstall();
     const nameEl = document.getElementById('apiTargetInstallName');
-    if (nameEl) nameEl.textContent = inst ? inst.name : 'Indevolt';
+    if (nameEl) nameEl.textContent = settings.ip || 'Indevolt';
   }
-  _apiCloseDropdown();
-  _apiApplyTargetStyles();
+    _apiApplyTargetStyles();
   _apiUpdateBaseUrl();
   _apiUpdateShortcuts();
   apiClear();
@@ -7360,8 +6928,7 @@ function _apiApplyTargetStyles() {
   }
   if (ipBadge) {
     if (isIndevolt) {
-      const inst = _apiGetTargetInstall();
-      ipBadge.textContent = inst ? `→ ${inst.ip}:${inst.port || 8080}` : '';
+            ipBadge.textContent = state.ip ? `→ ${state.ip}:${state.port || 8080}` : '';
     } else {
       const odIp = state.opendtu?.ip || document.getElementById('settingOpendtuIp')?.value || '?';
       ipBadge.textContent = `→ ${odIp}`;
@@ -7373,8 +6940,7 @@ function _apiUpdateBaseUrl() {
   const baseEl = document.getElementById('apiBaseUrl');
   if (!baseEl) return;
   if (_apiTarget === 'indevolt') {
-    const inst = _apiGetTargetInstall();
-    baseEl.textContent = inst ? `/indevolt-api/${inst.ip}/` : '/indevolt-api/…/';
+    baseEl.textContent = state.ip ? `/indevolt-api/${state.ip}/` : '/indevolt-api/…/';
   } else {
     const odIp = state.opendtu?.ip || document.getElementById('settingOpendtuIp')?.value || '…';
     baseEl.textContent = `/opendtu-api/${odIp}/`;
@@ -7425,8 +6991,7 @@ function apiSend() {
   const isIndevolt = _apiTarget === 'indevolt';
 
   // Validation cible
-  const inst = _apiGetTargetInstall();
-  if (isIndevolt && (!inst || !inst.ip)) { showToast('⚠️ Aucune installation Indevolt configurée', 'error'); return; }
+    if (isIndevolt && !state.ip) { showToast('⚠️ IP Indevolt non configurée dans les paramètres', 'error'); return; }
   const odIp = state.opendtu?.ip || document.getElementById('settingOpendtuIp')?.value;
   if (!isIndevolt && !odIp) { showToast('⚠️ IP OpenDTU non configurée', 'error'); return; }
 
@@ -7437,7 +7002,7 @@ function apiSend() {
   // Construction URL via proxy nginx
   let url;
   if (isIndevolt) {
-    url = `/indevolt-api/${inst.ip}/${endpoint}`;
+    url = `/indevolt-api/${state.ip}/${endpoint}`;
   } else {
     url = `/opendtu-api/${odIp}/${endpoint}`;
   }
@@ -7619,11 +7184,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Premier calcul après rendu
   setTimeout(updateFlowLines, 100);
   await loadSettings();
-  // Init multi-installations
-  renderInstallSelector();
-  renderInstallList();
-  const _activeInst = getActiveInstall();
-  if (_activeInst) { state.ip = _activeInst.ip; state.port = _activeInst.port || 8080; state.model = _activeInst.model; }
+    // Init depuis settings sauvegardés
+  if (settings.ip) { state.ip = settings.ip; }
+  if (settings.port) { state.port = settings.port; }
+  if (settings.model) { state.model = settings.model; }
   // Init plage date historique
   const _today = new Date().toISOString().slice(0,10);
   const _from30 = new Date(Date.now() - 29*86400000).toISOString().slice(0,10);
@@ -7658,13 +7222,12 @@ document.addEventListener('DOMContentLoaded', async () => {
   } catch(e) {}
   // Démarrer vérification scheduler toutes les minutes
   setInterval(checkScheduler, 60000);
-  _startCompareRefresh();
+  
   logger.info('Dashboard Indevolt initialisé');
   // Appliquer le modèle par défaut dès le chargement
   applyModel(document.getElementById('deviceModel').value);
   // Init console API — pré-sélectionne l'installation active
-  _apiSelectedInstallId = null;
-  apiSetTarget('indevolt');
+    apiSetTarget('indevolt');
   logger.info('Entrez l\'IP de l\'appareil et cliquez Connecter', 'Port par défaut : 8080 · Mode : OpenData HTTP');
 
   // Restaurer l'IP depuis la mémoire
