@@ -2,7 +2,7 @@
 
 <div align="center">
 
-![Version](https://img.shields.io/badge/version-2.1-00e5a0?style=flat-square)
+![Version](https://img.shields.io/badge/version-2.2-00e5a0?style=flat-square)
 ![Docker](https://img.shields.io/badge/docker-ready-2496ED?style=flat-square&logo=docker)
 ![License](https://img.shields.io/badge/license-MIT-green?style=flat-square)
 ![Nginx](https://img.shields.io/badge/nginx-proxy-009639?style=flat-square&logo=nginx)
@@ -34,7 +34,6 @@
 | 🔋 **Batteries** | Contrôle mode direct · Planificateur horaire visuel drag & drop · Forçage charge/décharge |
 | ☀️ **Solaire** | Micro-onduleurs OpenDTU (HM-400, HM-800) · Prévision **forecast.solar** · Météo Open-Meteo |
 | 📊 **Historique** | Graphiques 7j avec zoom · Historique 30j **multi-sélection** avec barres groupées · Comparaison N vs N-1 |
-| 🏘️ **Multi-installations** | Tableau comparatif SOC/puissance/température · Fetch parallèle · Auto-refresh 30s |
 | 📋 **Journal** | Détection coupures réseau, bypass, alertes SOC/temp · Export PDF horodaté |
 | 💾 **Persistance** | Stockage serveur via sidecar Python (survit aux rechargements de page) |
 | 🎨 **Thème** | Mode **clair / sombre / auto** (suit le système) · Bascule en un clic dans le header |
@@ -238,21 +237,6 @@ Analyse des données sur 7 jours et 30 jours.
 
 ---
 
-### 🏘️ Comparatif — Multi-installations
-
-Vue comparative si vous disposez de plusieurs installations Indevolt.
-
-- Carte par installation : SOC · Puissance batterie · Sortie AC · Réseau · Température
-- Barre SOC colorée selon niveau
-- Statut temps réel (En ligne / Données anciennes / Hors ligne)
-- Bouton **→ Basculer** pour passer le contrôle principal sur une installation
-- Graphique barres SOC comparatif
-- **Auto-refresh toutes les 30 secondes**
-
-> 💡 Gérez vos installations dans Paramètres → Installations
-
----
-
 ### 🎨 Thème — Mode clair / sombre
 
 Choisissez l'apparence du dashboard selon vos préférences.
@@ -309,11 +293,10 @@ Traçabilité complète de l'installation.
 ### ⚙️ Paramètres
 
 Tous les réglages de l'installation :
-- Connexion onduleur (IP, port, modèle)
-- Multi-installations (ajout, modification, suppression)
+- **Installation** : IP, port, modèle, capacité (Wh), limite export réseau
 - OpenDTU (activation, IP passerelle)
 - Localisation météo (lat/lon)
-- Alertes (SOC, température, export)
+- Alertes (SOC, température, alerte sonore)
 - Tarifs électricité (import/export)
 - Mode nuit (horaires automatiques)
 - Thème clair / sombre / auto
@@ -418,9 +401,6 @@ docker compose down -v
 **L'historique se vide après redémarrage**
 > Vérifiez que le volume `./data:/data:rw` est bien monté dans docker-compose.yml et que le dossier `data/store/` existe sur l'hôte.
 
-**Le comparatif affiche les installations comme hors ligne**
-> Toutes les installations doivent être accessibles depuis le serveur Docker sur le port 8080. Vérifiez la connectivité réseau entre le serveur et chaque onduleur.
-
 ---
 
 ## 🔄 Mise à jour
@@ -436,6 +416,16 @@ Les données persistantes dans `data/store/` ne sont pas affectées.
 
 ## 📋 Changelog
 
+### v2.2 — 2026-03-27
+
+- 🗑️ **Suppression onglet Comparatif** — fonctionnalité multi-installations retirée
+  (complexité architecturale incompatible avec un déploiement mono-site ;
+  voir [contexte](#-pourquoi-la-suppression-du-comparatif))
+- ✨ **Paramètres installation unique** — IP, port, modèle, capacité, limite export
+  regroupés dans une section dédiée, synchronisés avec le live panel
+- 🐛 Fix bandeau live — select modèle mis à jour en temps réel sans F5
+- 🐛 Fix onglet API — bouton Indevolt cliquable, raccourcis restaurés, IP correcte
+
 ### v2.1 — 2026-03-24
 - ✨ **Thème clair/sombre/auto** — bascule header + sélecteur Paramètres, graphiques Canvas adaptatifs
 - ✨ **Historique multi-sélection** — barres groupées côte à côte, légende colorée par catégorie
@@ -449,6 +439,31 @@ Les données persistantes dans `data/store/` ne sont pas affectées.
 - Multi-installations, planificateur drag & drop, journal d'événements, comparatif hebdomadaire
 - Forecast.solar, météo Open-Meteo, OpenDTU
 - Persistance serveur via sidecar Python
+
+---
+
+## ℹ️ Pourquoi la suppression du Comparatif
+
+L'onglet Comparatif permettait de superviser plusieurs onduleurs Indevolt
+en parallèle depuis un seul dashboard. Cette fonctionnalité a été retirée
+en v2.2 pour les raisons suivantes :
+
+- **Complexité architecturale** : la gestion multi-installations (paramètres
+  globaux vs par installation, synchronisation du state, cycle de sauvegarde)
+  générait des effets de bord difficiles à maîtriser — installations non
+  persistées après reload, sélecteur non rafraîchi, paramètres écrasés.
+
+- **Usage mono-site** : le dashboard est typiquement déployé sur un serveur
+  dédié à une installation physique unique. La comparaison multi-sites ne
+  correspond pas au besoin opérationnel courant.
+
+- **Maintenabilité** : la dette technique accumulée rendait toute évolution
+  risquée. Une suppression propre vaut mieux qu'un code fragile maintenu
+  sous perfusion.
+
+> Si vous avez un besoin réel de supervision multi-sites, la solution
+> recommandée est de déployer une instance du dashboard par onduleur,
+> accessibles depuis des ports différents.
 
 ---
 
