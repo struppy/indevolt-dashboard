@@ -23,7 +23,7 @@
   "ip": "192.168.1.71",
   "port": 8080,
   "model": "solidflex_eco_opendtu",
-  "theme": "light",
+  "theme": "auto",
   "pvPeakW": 2000,
   "pvTilt": 15,
   "pvAzimuth": 65,
