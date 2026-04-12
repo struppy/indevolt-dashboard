@@ -6563,67 +6563,77 @@ function applyScheduleNow() {
 }
 
 // ── Forçage immédiat charge/décharge ──────────────────
+// Helper SetData RTC — envoie une commande Indevolt.SetData via proxy nginx
+async function _setData(t, v) {
+  const cfg = encodeURIComponent(JSON.stringify({ f: 16, t, v }).replace(/ /g,''));
+  const res = await fetch(`/indevolt-api/${state.ip}/Indevolt.SetData?config=` + cfg, { method: 'POST' });
+  if (!res.ok) throw new Error('HTTP ' + res.status + ' (registre ' + t + ')');
+  return res.json();
+}
+
 async function forceChargeNow() {
   if (!state.connected) { showToast('⚠️ Connectez-vous d\'abord'); return; }
-  const soc   = parseFloat(document.getElementById('forceChargeSOC')?.value)   || 80;
-  const power = parseInt(document.getElementById('forceChargePower')?.value)    || 1000;
-  settings.forceChargeSOC = soc;
-
-  // 1. Passer en mode Contrôle Temps Réel (mode 4, registre 47005)
-  const payloadMode = { f: 16, t: 47005, v: [4] };
-  // 2. Définir la puissance de charge (registre 47006, en W)
-  const payloadPower = { f: 16, t: 47006, v: [power] };
+  const soc   = parseInt(document.getElementById('forceChargeSOC')?.value)   || 80;
+  const power = parseInt(document.getElementById('forceChargePower')?.value)  || 1000;
+  settings.forceChargeSOC    = soc;
+  settings.forceChargePower  = power;
 
   try {
-    // Envoyer le mode RTC
-    const cfgMode = encodeURIComponent(JSON.stringify(payloadMode).replace(/ /g,''));
-    await fetch(`/indevolt-api/${state.ip}/Indevolt.SetData?config=` + cfgMode, { method: 'POST' });
-    // Envoyer la consigne de puissance
-    const cfgPow = encodeURIComponent(JSON.stringify(payloadPower).replace(/ /g,''));
-    await fetch(`/indevolt-api/${state.ip}/Indevolt.SetData?config=` + cfgPow, { method: 'POST' });
-    logger.success('Forçage charge RTC', power + 'W → cible ' + soc + '% SOC');
+    // 1. Passer en mode Contrôle Temps Réel
+    await _setData(47005, [4]);
+    // 2. Écriture simultanée : état=1 (Charge), puissance, SOC cible
+    //    Registres 47015→47016→47017 en une seule commande v:[state, power, soc]
+    await _setData(47015, [1, power, soc]);
+    logger.success('Forçage charge RTC', 'État=Charge · ' + power + 'W · SOC cible=' + soc + '%');
   } catch(e) {
     logger.error('Forçage charge', e.message);
+    showToast('❌ Erreur : ' + e.message);
+    return;
   }
 
   window._forceMode = 'charge';
   window._forceSocTarget = soc;
   const el = document.getElementById('modeResult');
-  if (el) el.innerHTML = '<div style="color:#60b0f0;font-size:12px;margin-bottom:8px">⬆ Charge RTC activée — ' + power + ' W → cible ' + soc + '% SOC</div>';
-  showToast('⬆ Charge ' + power + 'W vers ' + soc + '%');
+  if (el) el.innerHTML = '<div style="color:#60b0f0;font-size:12px;margin-bottom:8px">⬆ Charge RTC — ' + power + ' W · cible ' + soc + '% SOC</div>';
+  showToast('⬆ Charge ' + power + 'W → ' + soc + '%');
 }
 
 async function forceDischargeNow() {
   if (!state.connected) { showToast('⚠️ Connectez-vous d\'abord'); return; }
-  const soc   = parseFloat(document.getElementById('forceDischargeSOC')?.value)  || 20;
-  const power = parseInt(document.getElementById('forceDischargePower')?.value)   || 1000;
-  settings.forceDischargeSOC = soc;
-
-  // 1. Passer en mode Contrôle Temps Réel (mode 4, registre 47005)
-  const payloadMode = { f: 16, t: 47005, v: [4] };
-  // 2. Définir la puissance de décharge (registre 47007, en W)
-  const payloadPower = { f: 16, t: 47007, v: [power] };
+  const soc   = parseInt(document.getElementById('forceDischargeSOC')?.value)   || 20;
+  const power = parseInt(document.getElementById('forceDischargePower')?.value)  || 1000;
+  settings.forceDischargeSOC    = soc;
+  settings.forceDischargePower  = power;
 
   try {
-    const cfgMode = encodeURIComponent(JSON.stringify(payloadMode).replace(/ /g,''));
-    await fetch(`/indevolt-api/${state.ip}/Indevolt.SetData?config=` + cfgMode, { method: 'POST' });
-    const cfgPow = encodeURIComponent(JSON.stringify(payloadPower).replace(/ /g,''));
-    await fetch(`/indevolt-api/${state.ip}/Indevolt.SetData?config=` + cfgPow, { method: 'POST' });
-    logger.success('Forçage décharge RTC', power + 'W → cible ' + soc + '% SOC');
+    // 1. Passer en mode Contrôle Temps Réel
+    await _setData(47005, [4]);
+    // 2. Reset état → Veille pour couper le mode précédent (charge ou autre)
+    await _setData(47015, [0, 0, 0]);
+    await new Promise(r => setTimeout(r, 300)); // laisser l'onduleur traiter
+    // 3. Écriture simultanée : état=2 (Décharge), puissance, SOC cible
+    await _setData(47015, [2, power, soc]);
+    logger.success('Forçage décharge RTC', 'État=Décharge · ' + power + 'W · SOC cible=' + soc + '%');
   } catch(e) {
     logger.error('Forçage décharge', e.message);
+    showToast('❌ Erreur : ' + e.message);
+    return;
   }
 
   window._forceMode = 'discharge';
   window._forceSocTarget = soc;
   const el = document.getElementById('modeResult');
-  if (el) el.innerHTML = '<div style="color:#f5803a;font-size:12px;margin-bottom:8px">⬇ Décharge RTC activée — ' + power + ' W → cible ' + soc + '% SOC</div>';
-  showToast('⬇ Décharge ' + power + 'W vers ' + soc + '%');
+  if (el) el.innerHTML = '<div style="color:#f5803a;font-size:12px;margin-bottom:8px">⬇ Décharge RTC — ' + power + ' W · cible ' + soc + '% SOC</div>';
+  showToast('⬇ Décharge ' + power + 'W → ' + soc + '%');
 }
 
-function cancelForce() {
+async function cancelForce() {
   window._forceMode = null;
   window._forceSocTarget = null;
+  try {
+    // Mettre l'état RTC en Veille avant de changer de mode
+    await _setData(47015, [0, 0, 0]);
+  } catch(e) { /* ignorer */ }
   setMode('self_consumed_prioritized');
   const el = document.getElementById('modeResult');
   if (el) el.innerHTML = '<div style="color:var(--text3);font-size:12px">✅ Forçage annulé — retour autoconsommation</div>';
