@@ -3237,17 +3237,17 @@ async function fetchData() {
     0,                                                  // SN (test connexion)
     4, 142,                                             // Infos système
     6000,6001,6002,6004,6005,6006,6007,                 // Batterie globale
-    6009,6105,6109,                                     // SOC détaillé / EPS
+    6105,6109,                                          // EPS / puissance RT
     2101,2102,2103,2108,                                // AC puissances
     2600,2612,2618,2666,2802,                           // Réseau
     5010,11016,                                         // Charge / compteur réseau
     667,680,                                            // Bypass
-    9002,9004,9010,9012,9013,9075,9076,                 // Main Unit (batterie 1)
-    9016,9018,9020,9084,9091,19173,                     // Slave 1 (SFA1800 #1)
-    9035,9037,9039,9100,9107,19174,                     // Slave 2 (SFA1800 #2)
-    9054,9056,9058,9116,19175,                          // Slave 3 (SFA1800 #3)
-    9150,9152,9154,9160,                                // Slave 4 (SFA1800 #4)
-    9165,9167,9169,9175,                                // Slave 5 (SFA1800 #5)
+    9000,9002,9004,9010,9012,9013,9075,9076,            // Main Unit (batterie 1) — 9000=SOC-MB (V1.4)
+    9016,9018,9020,9030,9091,19173,                     // Slave 1 (SFA1800 #1) — 9030=Temp-S1 (V1.4)
+    9035,9037,9039,9049,9107,19174,                     // Slave 2 (SFA1800 #2) — 9049=Temp-S2 (V1.4)
+    9054,9056,9058,9068,19175,                          // Slave 3 (SFA1800 #3) — 9068=Temp-S3 (V1.4)
+    9149,9152,9153,9163,19176,                          // Slave 4 (SFA1800 #4) — corrigé V1.4
+    9202,9167,9206,9216,19177,                          // Slave 5 (SFA1800 #5) — corrigé V1.4
     7101,7119,7120,                                     // Modes / états PV
     11005,11006,11009,11019,11020,                      // Divers
     8100,8101,                                          // Alertes
@@ -4785,7 +4785,7 @@ const REG = {
   BAT_DAILY_DISCHARGE:  "6005",  // kWh
   BAT_TOTAL_CHARGE:     "6006",  // kWh
   BAT_TOTAL_DISCHARGE:  "6007",  // kWh
-  MAIN_SOC:             "6009",  // %
+  MAIN_SOC:             "9000",  // % Batt SOC-MB (V1.4 — ex-6009 supprimé)
   EPS_SOC:              "6105",  // %
   BAT_RT_POWER:         "6109",  // W temps réel charge/décharge
   // AC / Réseau
@@ -4807,40 +4807,42 @@ const REG = {
   MAIN_SOH:             "9002",  // %
   MAIN_VOLTAGE:         "9004",  // V
   MAIN_MODULE_TEMP:     "9010",  // °C
-  MAIN_BAT_TEMP:        "9012",  // °C
-  MAIN_BAT_CURRENT:     "9013",  // A
+  MAIN_BAT_TEMP:        "9012",  // °C  Batt Temp-MB (V1.4)
+  MAIN_BAT_CURRENT:     "9013",  // A   Batt I-MB (V1.4)
   MAIN_DCDC_CURRENT:    "9075",  // A
   MAIN_DCDC_POWER:      "9076",  // W
   // Slave 1 (SFA1800 #1)
   S1_SOC:               "9016",
   S1_SOH:               "9018",
   S1_VOLTAGE:           "9020",
-  S1_TEMP:              "9084",
+  S1_TEMP:              "9030",  // Batt Temp-Slave1 (V1.4 — ex-9084)
   S1_DCDC_CURRENT:      "9091",
   S1_CURRENT:           "19173",
   // Slave 2 (SFA1800 #2)
   S2_SOC:               "9035",
   S2_SOH:               "9037",
   S2_VOLTAGE:           "9039",
-  S2_TEMP:              "9100",
+  S2_TEMP:              "9049",  // Batt Temp-Slave2 (V1.4 — ex-9100)
   S2_DCDC_CURRENT:      "9107",
   S2_CURRENT:           "19174",
   // Slave 3 (SFA1800 #3)
   S3_SOC:               "9054",
   S3_SOH:               "9056",
   S3_VOLTAGE:           "9058",
-  S3_TEMP:              "9116",
+  S3_TEMP:              "9068",  // Batt Temp-Slave3 (V1.4 — ex-9116)
   S3_CURRENT:           "19175",
   // Slave 4 (SFA1800 #4)
-  S4_SOC:               "9150",
+  S4_SOC:               "9149",  // Batt SOC-Slave4 (V1.4 — ex-9150)
   S4_SOH:               "9152",
-  S4_VOLTAGE:           "9154",
-  S4_TEMP:              "9160",
+  S4_VOLTAGE:           "9153",  // Batt V-Slave4 (V1.4 — ex-9154)
+  S4_TEMP:              "9163",  // Batt Temp-Slave4 (V1.4 — ex-9160)
+  S4_CURRENT:           "19176", // Batt I-Slave4 (V1.4 — ajouté)
   // Slave 5 (SFA1800 #5)
-  S5_SOC:               "9165",
+  S5_SOC:               "9202",  // Batt SOC-Slave5 (V1.4 — ex-9165)
   S5_SOH:               "9167",
-  S5_VOLTAGE:           "9169",
-  S5_TEMP:              "9175",
+  S5_VOLTAGE:           "9206",  // Batt V-Slave5 (V1.4 — ex-9169)
+  S5_TEMP:              "9216",  // Batt Temp-Slave5 (V1.4 — ex-9175)
+  S5_CURRENT:           "19177", // Batt I-Slave5 (V1.4 — ajouté)
   // Modes / États
   WORKING_MODE:         "7101",
   PV1_STATE:            "7119",
@@ -4972,8 +4974,8 @@ function processData(d) {
     { soc: REG.S1_SOC, soh: REG.S1_SOH, volt: REG.S1_VOLTAGE, temp: REG.S1_TEMP, curr: REG.S1_CURRENT, label: 'SFA1800 #1' },
     { soc: REG.S2_SOC, soh: REG.S2_SOH, volt: REG.S2_VOLTAGE, temp: REG.S2_TEMP, curr: REG.S2_CURRENT, label: 'SFA1800 #2' },
     { soc: REG.S3_SOC, soh: REG.S3_SOH, volt: REG.S3_VOLTAGE, temp: REG.S3_TEMP, curr: REG.S3_CURRENT, label: 'SFA1800 #3' },
-    { soc: REG.S4_SOC, soh: REG.S4_SOH, volt: REG.S4_VOLTAGE, temp: REG.S4_TEMP, curr: null,           label: 'SFA1800 #4' },
-    { soc: REG.S5_SOC, soh: REG.S5_SOH, volt: REG.S5_VOLTAGE, temp: REG.S5_TEMP, curr: null,           label: 'SFA1800 #5' },
+    { soc: REG.S4_SOC, soh: REG.S4_SOH, volt: REG.S4_VOLTAGE, temp: REG.S4_TEMP, curr: REG.S4_CURRENT, label: 'SFA1800 #4' },
+    { soc: REG.S5_SOC, soh: REG.S5_SOH, volt: REG.S5_VOLTAGE, temp: REG.S5_TEMP, curr: REG.S5_CURRENT, label: 'SFA1800 #5' },
   ];
 
   const packs = slaveRegs
