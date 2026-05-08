@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Indevolt — Directions visuelles</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Instrument+Serif:ital@0;1&family=DM+Mono:ital,wght@0,300;0,400;0,500&family=IBM+Plex+Mono:wght@300;400;500;600&family=Barlow+Condensed:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { font-family: system-ui, sans-serif; background: #111; }
+
+    /* ─── META NAV ─────────────────────────────────────── */
+    .meta-nav {
+      position: sticky; top: 0; z-index: 200;
+      background: #0a0a0a;
+      border-bottom: 1px solid #222;
+      display: flex; align-items: center; gap: 8px;
+      padding: 10px 28px;
+      font-size: 12px;
+    }
+    .meta-title { color: #555; font-weight: 600; letter-spacing: .05em; margin-right: 12px; white-space: nowrap; }
+    .meta-btn {
+      padding: 5px 14px; border-radius: 4px; cursor: pointer;
+      border: 1px solid #333; background: transparent; color: #888;
+      font-size: 11px; font-weight: 500; text-decoration: none;
+      transition: all .15s;
+    }
+    .meta-btn:hover { border-color: #555; color: #ccc; }
+    .meta-btn.rec { border-color: #14d68e44; color: #14d68e; }
+    .meta-btn.rec:hover { background: #14d68e18; }
+    .meta-note { margin-left: auto; color: #444; font-size: 11px; }
+
+    /* ─── SECTION WRAPPER ──────────────────────────────── */
+    .dir-section { border-bottom: 2px solid #000; }
+
+    .dir-bar {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 9px 28px; gap: 16px; position: sticky; top: 41px; z-index: 100;
+    }
+    .dir-bar-left { display: flex; align-items: baseline; gap: 12px; }
+    .dir-bar-name { font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; }
+    .dir-bar-desc { font-size: 11px; font-weight: 400; opacity: .55; letter-spacing: 0; text-transform: none; }
+    .choose-btn {
+      padding: 6px 18px; font-size: 11px; font-weight: 700;
+      letter-spacing: .06em; text-transform: uppercase; cursor: pointer;
+      border: none; white-space: nowrap;
+    }
+
+    /* ─── SHARED FLOW SVG ──────────────────────────────── */
+    .flow-svg { width: 100%; height: 200px; display: block; }
+
+    @keyframes march { from { stroke-dashoffset: 12; } to { stroke-dashoffset: 0; } }
+    @keyframes march-slow { from { stroke-dashoffset: 16; } to { stroke-dashoffset: 0; } }
+    @keyframes blink { 0%,100%{opacity:.5} 50%{opacity:1} }
+
+
+    /* ════════════════════════════════════════════════════
+       DIRECTION 1 — OBSIDIAN MONOLITH
+    ════════════════════════════════════════════════════ */
+    #d1 { background: #0c0c0e; }
+    #d1 .dir-bar { background: #111116; border-bottom: 1px solid rgba(255,255,255,.06); }
+    #d1 .dir-bar-name { color: rgba(255,255,255,.7); }
+    #d1 .dir-bar-desc { color: rgba(255,255,255,.35); }
+    #d1 .choose-btn { background: #c5d5ff; color: #0c0c0e; border-radius: 2px; }
+
+    .d1-db {
+      padding: 28px 36px 40px;
+      max-width: 1260px; margin: 0 auto;
+      font-family: 'JetBrains Mono', monospace;
+      color: #fff;
+    }
+
+    /* D1 header */
+    .d1-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding-bottom: 22px;
+      border-bottom: 1px solid rgba(255,255,255,.06);
+      margin-bottom: 26px;
+    }
+    .d1-logo { display: flex; align-items: center; gap: 14px; }
+    .d1-bolt {
+      width: 34px; height: 34px;
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.12);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .d1-logo-name { font-size: 15px; font-weight: 700; letter-spacing: .2em; text-transform: uppercase; }
+    .d1-logo-sub { font-size: 9px; opacity: .25; letter-spacing: .3em; text-transform: uppercase; margin-top: 3px; }
+    .d1-header-right { display: flex; align-items: center; gap: 28px; font-size: 10px; opacity: .3; letter-spacing: .1em; text-transform: uppercase; }
+    .d1-dot { display: inline-block; width: 5px; height: 5px; border-radius: 50%; background: #c5d5ff; margin-right: 7px; box-shadow: 0 0 6px #c5d5ff; animation: blink 2s infinite; }
+
+    /* D1 tabs */
+    .d1-tabs { display: flex; border-bottom: 1px solid rgba(255,255,255,.06); margin-bottom: 26px; }
+    .d1-tab {
+      padding: 10px 22px; font-family: 'JetBrains Mono', monospace;
+      font-size: 10px; letter-spacing: .18em; text-transform: uppercase;
+      color: rgba(255,255,255,.25); cursor: pointer; border: none; background: none;
+      border-bottom: 2px solid transparent; margin-bottom: -1px;
+    }
+    .d1-tab.on { color: #fff; border-bottom-color: #fff; }
+
+    /* D1 main */
+    .d1-main { display: grid; grid-template-columns: 1fr 1.15fr; gap: 22px; margin-bottom: 0; }
+
+    .d1-flow-box { border: 1px solid rgba(255,255,255,.07); padding: 22px 18px; }
+    .d1-box-label { font-size: 8px; letter-spacing: .35em; text-transform: uppercase; opacity: .22; margin-bottom: 18px; }
+
+    .d1-metrics { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: rgba(255,255,255,.07); }
+    .d1-mc { background: #0c0c0e; padding: 22px 20px; }
+    .d1-mc-label { font-size: 8px; letter-spacing: .28em; text-transform: uppercase; opacity: .25; margin-bottom: 12px; }
+    .d1-mc-val { font-size: 52px; font-weight: 300; line-height: 1; letter-spacing: -3px; }
+    .d1-mc-unit { font-size: 15px; opacity: .35; margin-left: 4px; letter-spacing: 0; }
+    .d1-mc-bar { height: 1px; background: rgba(255,255,255,.07); margin: 14px 0 8px; }
+    .d1-mc-fill { height: 100%; background: rgba(197,213,255,.7); }
+    .d1-mc-sub { font-size: 9px; opacity: .25; letter-spacing: .05em; }
+
+
+    /* ════════════════════════════════════════════════════
+       DIRECTION 2 — CARBON ATLAS
+    ════════════════════════════════════════════════════ */
+    #d2 { background: #0f1115; }
+    #d2 .dir-bar { background: #161b22; border-bottom: 1px solid rgba(255,255,255,.07); }
+    #d2 .dir-bar-name { color: rgba(238,242,247,.75); }
+    #d2 .dir-bar-desc { color: rgba(138,153,170,.7); }
+    #d2 .choose-btn { background: #14d68e; color: #0a0f0c; border-radius: 6px; }
+
+    .d2-db { padding: 30px 38px 44px; max-width: 1260px; margin: 0 auto; }
+
+    /* D2 header */
+    .d2-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding-bottom: 26px; border-bottom: 1px solid rgba(255,255,255,.07);
+      margin-bottom: 28px;
+    }
+    .d2-logo { display: flex; align-items: center; gap: 16px; }
+    .d2-logo-mark {
+      width: 44px; height: 44px; border-radius: 12px;
+      background: linear-gradient(135deg, #082a1a 0%, #14d68e 100%);
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 0 32px rgba(20,214,142,.18);
+    }
+    .d2-logo-name {
+      font-family: 'Instrument Serif', serif; font-size: 24px;
+      color: #eef2f7; letter-spacing: -.5px;
+    }
+    .d2-logo-tag { font-family: 'DM Mono', monospace; font-size: 11px; color: #4a6070; margin-top: 3px; }
+    .d2-pills { display: flex; gap: 10px; }
+    .d2-pill {
+      display: flex; align-items: center; gap: 8px;
+      padding: 7px 15px; background: #161b22;
+      border: 1px solid rgba(255,255,255,.07); border-radius: 100px;
+      font-family: 'DM Mono', monospace; font-size: 11px; color: #6a8090;
+    }
+    .d2-dot { width: 6px; height: 6px; border-radius: 50%; background: #14d68e; box-shadow: 0 0 8px rgba(20,214,142,.6); animation: blink 2s infinite; }
+
+    /* D2 tabs */
+    .d2-tabs { display: flex; border-bottom: 1px solid rgba(255,255,255,.07); margin-bottom: 26px; }
+    .d2-tab {
+      padding: 10px 20px; font-family: 'DM Mono', monospace; font-size: 11px;
+      color: #4a6070; cursor: pointer; border: none; background: none;
+      border-bottom: 2px solid transparent; margin-bottom: -1px;
+      letter-spacing: .02em;
+    }
+    .d2-tab.on { color: #14d68e; border-bottom-color: #14d68e; }
+
+    /* D2 main */
+    .d2-main { display: grid; grid-template-columns: 1.1fr 1fr; gap: 20px; }
+
+    .d2-flow-panel {
+      background: #161b22; border: 1px solid rgba(255,255,255,.07);
+      border-radius: 14px; padding: 24px;
+    }
+    .d2-section-title {
+      font-family: 'Instrument Serif', serif; font-style: italic;
+      font-size: 14px; color: #4a6070; margin-bottom: 18px;
+    }
+
+    .d2-metrics { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .d2-mc {
+      border-radius: 12px; padding: 20px; border: 1px solid;
+      position: relative; overflow: hidden;
+    }
+    .d2-mc::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; }
+    .d2-mc.bat { background: linear-gradient(135deg,rgba(20,214,142,.05),rgba(20,214,142,.015)); border-color: rgba(20,214,142,.22); }
+    .d2-mc.bat::before { background: #14d68e; }
+    .d2-mc.sol { background: linear-gradient(135deg,rgba(240,160,48,.06),rgba(240,160,48,.015)); border-color: rgba(240,160,48,.22); }
+    .d2-mc.sol::before { background: #f0a030; }
+    .d2-mc.grd { background: linear-gradient(135deg,rgba(82,146,216,.06),rgba(82,146,216,.015)); border-color: rgba(82,146,216,.22); }
+    .d2-mc.grd::before { background: #5292d8; }
+    .d2-mc.hom { background: linear-gradient(135deg,rgba(136,153,170,.05),rgba(136,153,170,.01)); border-color: rgba(136,153,170,.15); }
+    .d2-mc.hom::before { background: #8899aa; }
+
+    .d2-mc-icon { font-size: 20px; margin-bottom: 10px; line-height: 1; }
+    .d2-mc-label { font-family: 'DM Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: .1em; color: #4a6070; margin-bottom: 6px; }
+    .d2-mc-val { font-family: 'DM Mono', monospace; font-size: 38px; font-weight: 300; line-height: 1; letter-spacing: -1.5px; color: #eef2f7; }
+    .d2-mc-unit { font-size: 14px; color: #4a6070; margin-left: 4px; }
+    .d2-mc-bar { height: 3px; background: rgba(255,255,255,.06); border-radius: 2px; margin: 12px 0 8px; }
+    .d2-mc-fill { height: 100%; border-radius: 2px; }
+    .d2-mc-sub { font-family: 'DM Mono', monospace; font-size: 10px; color: #4a6070; }
+
+
+    /* ════════════════════════════════════════════════════
+       DIRECTION 3 — BLUEPRINT
+    ════════════════════════════════════════════════════ */
+    #d3 {
+      background-color: #08121e;
+      background-image:
+        linear-gradient(rgba(0,200,255,.028) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,200,255,.028) 1px, transparent 1px);
+      background-size: 40px 40px;
+    }
+    #d3 .dir-bar { background: rgba(8,18,30,.96); border-bottom: 1px solid rgba(0,200,255,.14); backdrop-filter: blur(4px); }
+    #d3 .dir-bar-name { color: rgba(212,234,248,.75); }
+    #d3 .dir-bar-desc { color: rgba(0,200,255,.4); }
+    #d3 .choose-btn { background: #00ccff; color: #08121e; border-radius: 0; letter-spacing: .1em; }
+
+    .d3-db { padding: 28px 36px 44px; max-width: 1260px; margin: 0 auto; }
+
+    /* D3 header */
+    .d3-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding-bottom: 22px; border-bottom: 1px solid rgba(0,200,255,.14);
+      margin-bottom: 26px;
+    }
+    .d3-logo { display: flex; align-items: center; gap: 16px; }
+    .d3-mark {
+      width: 40px; height: 40px; border: 1.5px solid rgba(0,200,255,.45);
+      display: flex; align-items: center; justify-content: center; position: relative;
+    }
+    .d3-mark::before { content:''; position:absolute; inset:4px; border:1px solid rgba(0,200,255,.18); }
+    .d3-logo-name { font-family:'Barlow Condensed',sans-serif; font-size:24px; font-weight:700; letter-spacing:.22em; text-transform:uppercase; color:#d4eaf8; }
+    .d3-logo-tag { font-family:'IBM Plex Mono',monospace; font-size:9px; color:rgba(0,200,255,.4); letter-spacing:.18em; text-transform:uppercase; margin-top:3px; }
+    .d3-header-right { display:flex; gap:32px; }
+    .d3-stat { font-family:'IBM Plex Mono',monospace; font-size:9px; color:rgba(0,200,255,.38); letter-spacing:.12em; text-transform:uppercase; text-align:right; }
+    .d3-stat strong { display:block; font-size:14px; color:#00ccff; font-weight:600; letter-spacing:0; margin-bottom:2px; }
+
+    /* D3 tabs */
+    .d3-tabs { display:flex; border-bottom:1px solid rgba(0,200,255,.14); margin-bottom:26px; }
+    .d3-tab {
+      padding:10px 22px; font-family:'Barlow Condensed',sans-serif; font-size:13px;
+      font-weight:600; letter-spacing:.2em; text-transform:uppercase;
+      color:rgba(0,200,255,.28); cursor:pointer; border:none; background:none;
+      border-bottom:2px solid transparent; margin-bottom:-1px;
+    }
+    .d3-tab.on { color:#00ccff; border-bottom-color:#00ccff; background:rgba(0,200,255,.04); }
+
+    /* D3 main */
+    .d3-main { display:grid; grid-template-columns:1fr 1.1fr; gap:20px; }
+
+    .d3-flow-panel { border:1px solid rgba(0,200,255,.18); padding:22px 18px; background:rgba(0,200,255,.018); }
+    .d3-panel-label { font-family:'Barlow Condensed',sans-serif; font-size:11px; font-weight:600; letter-spacing:.28em; text-transform:uppercase; color:rgba(0,200,255,.38); margin-bottom:16px; }
+
+    .d3-metrics { display:grid; grid-template-columns:1fr 1fr; gap:1px; background:rgba(0,200,255,.14); }
+    .d3-mc { background:#08121e; padding:20px; position:relative; overflow:hidden; }
+    .d3-mc::after { content:''; position:absolute; top:0; left:0; width:3px; height:100%; }
+    .d3-mc.bat::after { background:#14d68e; }
+    .d3-mc.sol::after { background:#ffd166; }
+    .d3-mc.grd::after { background:#00ccff; }
+    .d3-mc.hom::after { background:#7899b8; }
+    .d3-mc-id { font-family:'IBM Plex Mono',monospace; font-size:8px; letter-spacing:.22em; color:rgba(0,200,255,.28); text-transform:uppercase; margin-bottom:7px; }
+    .d3-mc-label { font-family:'Barlow Condensed',sans-serif; font-size:13px; font-weight:600; letter-spacing:.16em; text-transform:uppercase; color:#7899b8; margin-bottom:8px; }
+    .d3-mc-val { font-family:'IBM Plex Mono',monospace; font-size:40px; font-weight:600; color:#d4eaf8; line-height:1; letter-spacing:-1.5px; }
+    .d3-mc-unit { font-family:'IBM Plex Mono',monospace; font-size:14px; color:rgba(0,200,255,.38); margin-left:4px; }
+    .d3-mc-bar { height:2px; background:rgba(0,200,255,.07); margin:12px 0 8px; }
+    .d3-mc-fill { height:100%; }
+    .d3-mc-sub { font-family:'IBM Plex Mono',monospace; font-size:8px; color:rgba(0,200,255,.3); text-transform:uppercase; letter-spacing:.12em; }
+  </style>
+</head>
+<body>
+
+<!-- META NAV -->
+<nav class="meta-nav">
+  <span class="meta-title">Indevolt — Directions visuelles</span>
+  <a href="#d1" class="meta-btn">1 · Obsidian Monolith</a>
+  <a href="#d2" class="meta-btn rec">2 · Carbon Atlas ★</a>
+  <a href="#d3" class="meta-btn">3 · Blueprint Technique</a>
+  <span class="meta-note">Scroll ou clic sur les boutons pour naviguer · Données fictives</span>
+</nav>
+
+
+<!-- ════════════════════════════════════════════
+     DIRECTION 1 — OBSIDIAN MONOLITH
+═════════════════════════════════════════════ -->
+<section class="dir-section" id="d1">
+  <div class="dir-bar">
+    <div class="dir-bar-left">
+      <span class="dir-bar-name">Direction 1 — Obsidian Monolith</span>
+      <span class="dir-bar-desc">Fond #0c0c0e · JetBrains Mono strict · Blanc électrique · Zéro chrome · Chiffres monumentaux</span>
+    </div>
+    <button class="choose-btn">Choisir →</button>
+  </div>
+
+  <div class="d1-db">
+    <header class="d1-header">
+      <div class="d1-logo">
+        <div class="d1-bolt">
+          <svg width="14" height="20" viewBox="0 0 14 20" fill="none">
+            <polygon points="9,0 3,10 7,10 5,20 11,8 7,8" fill="rgba(255,255,255,0.85)"/>
+          </svg>
+        </div>
+        <div>
+          <div class="d1-logo-name">INDEVOLT</div>
+          <div class="d1-logo-sub">Système d'énergie domestique</div>
+        </div>
+      </div>
+      <div class="d1-header-right">
+        <span><span class="d1-dot"></span>En ligne</span>
+        <span>MAJ il y a 3s</span>
+        <span>08 mai 2026 · 14:22</span>
+      </div>
+    </header>
+
+    <div class="d1-tabs">
+      <button class="d1-tab on">Temps réel</button>
+      <button class="d1-tab">Batteries</button>
+      <button class="d1-tab">Solaire</button>
+      <button class="d1-tab">Historique</button>
+      <button class="d1-tab">Logs</button>
+      <button class="d1-tab">Paramètres</button>
+    </div>
+
+    <div class="d1-main">
+      <!-- Flow diagram -->
+      <div class="d1-flow-box">
+        <div class="d1-box-label">Flux d'énergie</div>
+        <svg class="flow-svg" viewBox="0 0 420 195" xmlns="http://www.w3.org/2000/svg">
+          <!-- Solar → Battery -->
+          <line x1="92" y1="58" x2="200" y2="98"
+            stroke="rgba(255,255,255,.18)" stroke-width="1"
+            stroke-dasharray="5 3">
+            <animate attributeName="stroke-dashoffset" values="8;0" dur="1.4s" repeatCount="indefinite"/>
+          </line>
+          <!-- Grid (export) → no animation, dimmer -->
+          <line x1="92" y1="138" x2="200" y2="98"
+            stroke="rgba(255,255,255,.07)" stroke-width="1"
+            stroke-dasharray="4 4"/>
+          <!-- Battery → Home -->
+          <line x1="200" y1="98" x2="328" y2="98"
+            stroke="rgba(255,255,255,.2)" stroke-width="1"
+            stroke-dasharray="5 3">
+            <animate attributeName="stroke-dashoffset" values="8;0" dur="1s" repeatCount="indefinite"/>
+          </line>
+
+          <!-- SOLAR -->
+          <rect x="12" y="38" width="160" height="40" fill="rgba(255,255,255,.02)" stroke="rgba(255,255,255,.14)" stroke-width="1"/>
+          <text x="20" y="55" fill="rgba(255,255,255,.3)" font-family="JetBrains Mono,monospace" font-size="8" letter-spacing="2">SOLAIRE</text>
+          <text x="20" y="72" fill="#fff" font-family="JetBrains Mono,monospace" font-size="18" font-weight="500">1 842 W</text>
+
+          <!-- GRID -->
+          <rect x="12" y="118" width="160" height="40" fill="none" stroke="rgba(255,255,255,.07)" stroke-width="1"/>
+          <text x="20" y="135" fill="rgba(255,255,255,.18)" font-family="JetBrains Mono,monospace" font-size="8" letter-spacing="2">RÉSEAU</text>
+          <text x="20" y="152" fill="rgba(100,180,255,.55)" font-family="JetBrains Mono,monospace" font-size="16">−340 W</text>
+
+          <!-- BATTERY (center) -->
+          <rect x="160" y="70" width="80" height="56" fill="rgba(197,213,255,.04)" stroke="rgba(197,213,255,.35)" stroke-width="1"/>
+          <text x="200" y="92" text-anchor="middle" fill="rgba(197,213,255,.4)" font-family="JetBrains Mono,monospace" font-size="8" letter-spacing="2">SOC</text>
+          <text x="200" y="116" text-anchor="middle" fill="#c5d5ff" font-family="JetBrains Mono,monospace" font-size="22" font-weight="500">87%</text>
+
+          <!-- HOME -->
+          <rect x="248" y="74" width="160" height="48" fill="rgba(255,255,255,.015)" stroke="rgba(255,255,255,.1)" stroke-width="1"/>
+          <text x="256" y="92" fill="rgba(255,255,255,.25)" font-family="JetBrains Mono,monospace" font-size="8" letter-spacing="2">MAISON</text>
+          <text x="256" y="112" fill="rgba(255,255,255,.9)" font-family="JetBrains Mono,monospace" font-size="16">890 W</text>
+
+          <!-- Arrowheads -->
+          <polygon points="196,98 186,93 186,103" fill="rgba(197,213,255,.5)"/>
+          <polygon points="244,98 234,93 234,103" fill="rgba(255,255,255,.4)"/>
+        </svg>
+      </div>
+
+      <!-- Metrics -->
+      <div class="d1-metrics">
+        <div class="d1-mc">
+          <div class="d1-mc-label">État de charge</div>
+          <div class="d1-mc-val">87<span class="d1-mc-unit">%</span></div>
+          <div class="d1-mc-bar"><div class="d1-mc-fill" style="width:87%"></div></div>
+          <div class="d1-mc-sub">↑ En charge · +320 W net</div>
+        </div>
+        <div class="d1-mc">
+          <div class="d1-mc-label">Production solaire</div>
+          <div class="d1-mc-val" style="color:rgba(255,220,100,.9)">1 842<span class="d1-mc-unit">W</span></div>
+          <div class="d1-mc-bar"><div class="d1-mc-fill" style="width:73%;background:rgba(255,210,80,.55)"></div></div>
+          <div class="d1-mc-sub">12.4 kWh aujourd'hui</div>
+        </div>
+        <div class="d1-mc">
+          <div class="d1-mc-label">Échange réseau</div>
+          <div class="d1-mc-val" style="color:rgba(100,180,255,.8)">−340<span class="d1-mc-unit">W</span></div>
+          <div class="d1-mc-bar"><div class="d1-mc-fill" style="width:34%;background:rgba(100,180,255,.45)"></div></div>
+          <div class="d1-mc-sub">Injection active</div>
+        </div>
+        <div class="d1-mc">
+          <div class="d1-mc-label">Consommation maison</div>
+          <div class="d1-mc-val">890<span class="d1-mc-unit">W</span></div>
+          <div class="d1-mc-bar"><div class="d1-mc-fill" style="width:45%"></div></div>
+          <div class="d1-mc-sub">Temp. bat. 28.4°C</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════════════
+     DIRECTION 2 — CARBON ATLAS ★
+═════════════════════════════════════════════ -->
+<section class="dir-section" id="d2">
+  <div class="dir-bar">
+    <div class="dir-bar-left">
+      <span class="dir-bar-name">Direction 2 — Carbon Atlas ★ Recommandée</span>
+      <span class="dir-bar-desc">Fond #0f1115 · Instrument Serif + DM Mono · Multi-accents chauds · Cartes gradient · Style Bloomberg / Stripe</span>
+    </div>
+    <button class="choose-btn">Choisir →</button>
+  </div>
+
+  <div class="d2-db">
+    <header class="d2-header">
+      <div class="d2-logo">
+        <div class="d2-logo-mark">
+          <svg width="16" height="22" viewBox="0 0 14 20" fill="none">
+            <polygon points="9,0 3,10 7,10 5,20 11,8 7,8" fill="white"/>
+          </svg>
+        </div>
+        <div>
+          <div class="d2-logo-name">Indevolt</div>
+          <div class="d2-logo-tag">Tableau de bord énergie</div>
+        </div>
+      </div>
+      <div class="d2-pills">
+        <div class="d2-pill"><span class="d2-dot"></span>En ligne · MAJ 3s</div>
+        <div class="d2-pill">08 mai 2026 · 14:22</div>
+      </div>
+    </header>
+
+    <div class="d2-tabs">
+      <button class="d2-tab on">Temps réel</button>
+      <button class="d2-tab">Batteries</button>
+      <button class="d2-tab">Solaire</button>
+      <button class="d2-tab">Historique</button>
+      <button class="d2-tab">Logs</button>
+      <button class="d2-tab">Paramètres</button>
+    </div>
+
+    <div class="d2-main">
+      <!-- Flow panel -->
+      <div class="d2-flow-panel">
+        <div class="d2-section-title">Flux d'énergie en temps réel</div>
+        <svg class="flow-svg" viewBox="0 0 420 195" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="g-sol" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#f0a030" stop-opacity=".9"/>
+              <stop offset="100%" stop-color="#14d68e" stop-opacity=".8"/>
+            </linearGradient>
+            <linearGradient id="g-bat-home" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#14d68e" stop-opacity=".85"/>
+              <stop offset="100%" stop-color="#8899aa" stop-opacity=".6"/>
+            </linearGradient>
+            <filter id="glow2"><feGaussianBlur stdDeviation="2.5" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+          </defs>
+
+          <!-- Solar → Battery -->
+          <path d="M92,58 C145,58 155,98 168,98"
+            stroke="url(#g-sol)" stroke-width="2.5" fill="none" stroke-dasharray="7 4">
+            <animate attributeName="stroke-dashoffset" values="11;0" dur="1.3s" repeatCount="indefinite"/>
+          </path>
+          <!-- Grid (injection, dim) -->
+          <path d="M92,137 C145,137 155,98 168,98"
+            stroke="#5292d8" stroke-width="1.5" fill="none" stroke-dasharray="4 5"
+            stroke-opacity=".35"/>
+          <!-- Battery → Home -->
+          <path d="M240,98 C255,98 268,98 280,98"
+            stroke="url(#g-bat-home)" stroke-width="2.5" fill="none" stroke-dasharray="7 4">
+            <animate attributeName="stroke-dashoffset" values="11;0" dur="1s" repeatCount="indefinite"/>
+          </path>
+
+          <!-- SOLAR -->
+          <rect x="8" y="35" width="156" height="46" rx="10" fill="rgba(240,160,48,.07)" stroke="rgba(240,160,48,.28)" stroke-width="1"/>
+          <text x="22" y="56" fill="#f0a030" font-family="DM Mono,monospace" font-size="9" opacity=".75">☀  SOLAIRE</text>
+          <text x="22" y="74" fill="#f0a030" font-family="DM Mono,monospace" font-size="19" font-weight="500">1 842 W</text>
+
+          <!-- GRID -->
+          <rect x="8" y="116" width="156" height="43" rx="10" fill="rgba(82,146,216,.05)" stroke="rgba(82,146,216,.22)" stroke-width="1"/>
+          <text x="22" y="135" fill="#5292d8" font-family="DM Mono,monospace" font-size="9" opacity=".75">⚡  RÉSEAU</text>
+          <text x="22" y="152" fill="#5292d8" font-family="DM Mono,monospace" font-size="17">−340 W</text>
+
+          <!-- BATTERY -->
+          <rect x="168" y="70" width="72" height="56" rx="12"
+            fill="rgba(20,214,142,.08)" stroke="#14d68e" stroke-width="1.5" filter="url(#glow2)"/>
+          <text x="204" y="93" text-anchor="middle" fill="rgba(20,214,142,.6)" font-family="DM Mono,monospace" font-size="8" letter-spacing="1">SOC</text>
+          <text x="204" y="116" text-anchor="middle" fill="#14d68e" font-family="DM Mono,monospace" font-size="22" font-weight="500" filter="url(#glow2)">87%</text>
+
+          <!-- HOME -->
+          <rect x="280" y="72" width="132" height="52" rx="10" fill="rgba(136,153,170,.05)" stroke="rgba(136,153,170,.18)" stroke-width="1"/>
+          <text x="296" y="93" fill="#8899aa" font-family="DM Mono,monospace" font-size="9" opacity=".75">🏠  MAISON</text>
+          <text x="296" y="113" fill="#eef2f7" font-family="DM Mono,monospace" font-size="17">890 W</text>
+
+          <!-- Arrows -->
+          <polygon points="164,98 154,93 154,103" fill="#14d68e" opacity=".7"/>
+          <polygon points="276,98 266,93 266,103" fill="#14d68e" opacity=".65"/>
+        </svg>
+      </div>
+
+      <!-- Metrics -->
+      <div class="d2-metrics">
+        <div class="d2-mc bat">
+          <div class="d2-mc-icon">🔋</div>
+          <div class="d2-mc-label">État de charge</div>
+          <div class="d2-mc-val">87<span class="d2-mc-unit">%</span></div>
+          <div class="d2-mc-bar"><div class="d2-mc-fill" style="width:87%;background:#14d68e"></div></div>
+          <div class="d2-mc-sub">↑ En charge · +320 W net</div>
+        </div>
+        <div class="d2-mc sol">
+          <div class="d2-mc-icon">☀️</div>
+          <div class="d2-mc-label">Production solaire</div>
+          <div class="d2-mc-val" style="color:#f0a030">1 842<span class="d2-mc-unit">W</span></div>
+          <div class="d2-mc-bar"><div class="d2-mc-fill" style="width:73%;background:#f0a030"></div></div>
+          <div class="d2-mc-sub">12.4 kWh aujourd'hui</div>
+        </div>
+        <div class="d2-mc grd">
+          <div class="d2-mc-icon">⚡</div>
+          <div class="d2-mc-label">Échange réseau</div>
+          <div class="d2-mc-val" style="color:#5292d8">−340<span class="d2-mc-unit">W</span></div>
+          <div class="d2-mc-bar"><div class="d2-mc-fill" style="width:34%;background:#5292d8"></div></div>
+          <div class="d2-mc-sub">Injection réseau active</div>
+        </div>
+        <div class="d2-mc hom">
+          <div class="d2-mc-icon">🏠</div>
+          <div class="d2-mc-label">Consommation</div>
+          <div class="d2-mc-val">890<span class="d2-mc-unit">W</span></div>
+          <div class="d2-mc-bar"><div class="d2-mc-fill" style="width:45%;background:#8899aa"></div></div>
+          <div class="d2-mc-sub">Temp. bat. 28.4°C</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════════════
+     DIRECTION 3 — BLUEPRINT TECHNIQUE
+═════════════════════════════════════════════ -->
+<section class="dir-section" id="d3">
+  <div class="dir-bar">
+    <div class="dir-bar-left">
+      <span class="dir-bar-name">Direction 3 — Blueprint Technique</span>
+      <span class="dir-bar-desc">Fond navy #08121e · Grille overlay · Barlow Condensed + IBM Plex Mono · Cyan technique · Look panneau de contrôle</span>
+    </div>
+    <button class="choose-btn">Choisir →</button>
+  </div>
+
+  <div class="d3-db">
+    <header class="d3-header">
+      <div class="d3-logo">
+        <div class="d3-mark">
+          <svg width="16" height="20" viewBox="0 0 14 20" fill="none">
+            <polygon points="9,0 3,10 7,10 5,20 11,8 7,8" fill="#00ccff" opacity=".9"/>
+          </svg>
+        </div>
+        <div>
+          <div class="d3-logo-name">Indevolt</div>
+          <div class="d3-logo-tag">EMS · v2.4.1 · SYS:NOMINAL</div>
+        </div>
+      </div>
+      <div class="d3-header-right">
+        <div class="d3-stat">
+          <strong>EN LIGNE</strong>
+          Dernière MAJ 3s
+        </div>
+        <div class="d3-stat">
+          <strong>14:22:08</strong>
+          08/05/2026
+        </div>
+      </div>
+    </header>
+
+    <div class="d3-tabs">
+      <button class="d3-tab on">Temps réel</button>
+      <button class="d3-tab">Batteries</button>
+      <button class="d3-tab">Solaire</button>
+      <button class="d3-tab">Historique</button>
+      <button class="d3-tab">Logs</button>
+      <button class="d3-tab">Paramètres</button>
+    </div>
+
+    <div class="d3-main">
+      <!-- Flow panel -->
+      <div class="d3-flow-panel">
+        <div class="d3-panel-label">// Flux d'énergie</div>
+        <svg class="flow-svg" viewBox="0 0 420 195" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <filter id="glow3"><feGaussianBlur stdDeviation="2" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+            <pattern id="d3dots" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse">
+              <circle cx="10" cy="10" r=".9" fill="rgba(0,200,255,.1)"/>
+            </pattern>
+          </defs>
+          <rect width="420" height="195" fill="url(#d3dots)"/>
+
+          <!-- Orthogonal paths -->
+          <!-- Solar → right → down → battery -->
+          <polyline points="168,58 200,58 200,96 210,96"
+            stroke="rgba(255,209,102,.65)" stroke-width="1.5" fill="none" stroke-dasharray="5 3">
+            <animate attributeName="stroke-dashoffset" values="8;0" dur="1.1s" repeatCount="indefinite"/>
+          </polyline>
+          <!-- Grid → right → up → battery (injection, dim) -->
+          <polyline points="168,138 200,138 200,96 210,96"
+            stroke="rgba(0,200,255,.3)" stroke-width="1" fill="none" stroke-dasharray="4 4"/>
+          <!-- Battery → right → Home -->
+          <polyline points="286,96 330,96"
+            stroke="rgba(0,200,255,.7)" stroke-width="1.5" fill="none" stroke-dasharray="5 3">
+            <animate attributeName="stroke-dashoffset" values="8;0" dur=".9s" repeatCount="indefinite"/>
+          </polyline>
+
+          <!-- Junction dot -->
+          <circle cx="200" cy="96" r="3.5" fill="#00ccff" opacity=".45" filter="url(#glow3)"/>
+
+          <!-- SOLAR -->
+          <rect x="8" y="38" width="160" height="40" fill="rgba(255,209,102,.03)" stroke="rgba(255,209,102,.38)" stroke-width="1"/>
+          <rect x="8" y="38" width="3" height="40" fill="#ffd166"/>
+          <text x="20" y="55" fill="rgba(255,209,102,.45)" font-family="IBM Plex Mono,monospace" font-size="8" letter-spacing="2">PV · MPPT</text>
+          <text x="20" y="72" fill="#ffd166" font-family="IBM Plex Mono,monospace" font-size="18" font-weight="600" filter="url(#glow3)">1842 W</text>
+
+          <!-- GRID -->
+          <rect x="8" y="118" width="160" height="40" fill="rgba(0,200,255,.025)" stroke="rgba(0,200,255,.2)" stroke-width="1"/>
+          <rect x="8" y="118" width="3" height="40" fill="#00ccff" opacity=".5"/>
+          <text x="20" y="135" fill="rgba(0,200,255,.38)" font-family="IBM Plex Mono,monospace" font-size="8" letter-spacing="2">RÉSEAU</text>
+          <text x="20" y="152" fill="#00ccff" font-family="IBM Plex Mono,monospace" font-size="16" font-weight="500">−340 W</text>
+
+          <!-- BATTERY -->
+          <rect x="210" y="68" width="76" height="56" fill="rgba(0,200,255,.04)" stroke="#00ccff" stroke-width="1.5" filter="url(#glow3)"/>
+          <text x="248" y="90" text-anchor="middle" fill="rgba(0,200,255,.45)" font-family="IBM Plex Mono,monospace" font-size="7" letter-spacing="2">BAT·SOC</text>
+          <text x="248" y="114" text-anchor="middle" fill="#00ccff" font-family="IBM Plex Mono,monospace" font-size="22" font-weight="600" filter="url(#glow3)">87%</text>
+
+          <!-- HOME -->
+          <rect x="330" y="72" width="82" height="48" fill="rgba(120,153,184,.03)" stroke="rgba(120,153,184,.22)" stroke-width="1"/>
+          <rect x="330" y="72" width="3" height="48" fill="#7899b8"/>
+          <text x="342" y="91" fill="rgba(120,153,184,.45)" font-family="IBM Plex Mono,monospace" font-size="8" letter-spacing="1">MAISON</text>
+          <text x="342" y="110" fill="#d4eaf8" font-family="IBM Plex Mono,monospace" font-size="15">890 W</text>
+
+          <!-- Arrows -->
+          <polygon points="206,96 196,91 196,101" fill="#ffd166" opacity=".5"/>
+          <polygon points="326,96 316,91 316,101" fill="#00ccff" opacity=".6"/>
+        </svg>
+      </div>
+
+      <!-- Metrics -->
+      <div class="d3-metrics">
+        <div class="d3-mc bat">
+          <div class="d3-mc-id">SYS·BAT·001</div>
+          <div class="d3-mc-label">État de charge</div>
+          <div class="d3-mc-val">87<span class="d3-mc-unit">%</span></div>
+          <div class="d3-mc-bar"><div class="d3-mc-fill" style="width:87%;background:#14d68e"></div></div>
+          <div class="d3-mc-sub">STATUS · CHARGE · +320W</div>
+        </div>
+        <div class="d3-mc sol">
+          <div class="d3-mc-id">PV·MPPT·001</div>
+          <div class="d3-mc-label">Production solaire</div>
+          <div class="d3-mc-val" style="color:#ffd166">1842<span class="d3-mc-unit">W</span></div>
+          <div class="d3-mc-bar"><div class="d3-mc-fill" style="width:73%;background:#ffd166"></div></div>
+          <div class="d3-mc-sub">TODAY · 12.4 KWH</div>
+        </div>
+        <div class="d3-mc grd">
+          <div class="d3-mc-id">GRD·EDF·001</div>
+          <div class="d3-mc-label">Échange réseau</div>
+          <div class="d3-mc-val">−340<span class="d3-mc-unit">W</span></div>
+          <div class="d3-mc-bar"><div class="d3-mc-fill" style="width:34%;background:#00ccff"></div></div>
+          <div class="d3-mc-sub">MODE · INJECTION</div>
+        </div>
+        <div class="d3-mc hom">
+          <div class="d3-mc-id">HOM·LOAD·001</div>
+          <div class="d3-mc-label">Consommation</div>
+          <div class="d3-mc-val">890<span class="d3-mc-unit">W</span></div>
+          <div class="d3-mc-bar"><div class="d3-mc-fill" style="width:45%;background:#7899b8"></div></div>
+          <div class="d3-mc-sub">TEMP · 28.4°C</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+</body>
+</html>
