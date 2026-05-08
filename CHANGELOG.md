@@ -7,6 +7,39 @@ Versioning basé sur [Semantic Versioning](https://semver.org/lang/fr/)
 
 ---
 
+## [2.2.0] - 2026-05-08
+
+### Ajouté
+- Nouveau logo SVG vectoriel : picto composé d'un panneau PV 3×4 cellules (dégradé bleu diagonal), d'un éclair et d'une batterie Indevolt avec bandeau LED bleu
+- Wordmark officiel Indevolt intégré (lettres blanches, E en `#3250C3`) en remplacement du texte HTML
+- Favicon mis à jour avec le même picto sur fond `#0d1820`
+- Clic sur le logo retourne à l'onglet Temps Réel
+
+### Corrigé
+- Alignement vertical du logo et du bloc texte dans le header (flex column + `display:block` sur le SVG)
+- Hauteur du picto adaptée dynamiquement à la hauteur du bloc wordmark+sous-titre (`align-items:stretch`)
+
+---
+
+## [2.1.1] - 2026-05-08
+
+### Ajouté
+- Script `update.sh` : déploiement automatique GitHub → serveur (`git pull` + `docker compose restart`)
+- Forçage immédiat mode RTC avec consigne de puissance configurable (registres 47015/47016/47017)
+- Console API live dans l'onglet API avec logs de requêtes en temps réel
+- Historique multi-sélection de métriques (choix des courbes affichées simultanément)
+- Auto-connexion au démarrage si une IP est déjà configurée
+
+### Corrigé
+- Failles XSS : échappement HTML systématique sur toutes les données API affichées
+- Registres SolidFlex 2000 / SFA1800 mis à jour selon OpenData API V1.4
+- Registres RTC forçage immédiat (47015/16/17) + reset veille entre les modes
+- Panneau connexion repliable (statusDot nettoyé)
+- Corrections graphiques prévision solaire (polling + affichage)
+- Suppression de l'onglet Comparatif multi-installations (refonte paramètres installation unique)
+
+---
+
 ## [2.1.0] - 2026-03-06
 
 ### Ajouté
