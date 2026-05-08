@@ -55,6 +55,42 @@ def key_path(key):
     return os.path.join(STORE_DIR, safe + '.json')
 
 
+_TIME_RE = re.compile(r'^([01][0-9]|2[0-3]):[0-5][0-9]$')
+_SLOT_MODES = {'auto', 'charge', 'discharge', 'schedule'}
+
+
+def _validate_settings(data):
+    cleaned = dict(data)
+
+    slots = cleaned.get('scheduleSlots')
+    if slots is not None:
+        if not isinstance(slots, list):
+            raise ValueError("scheduleSlots doit être une liste")
+        validated_slots = []
+        for slot in slots:
+            if not isinstance(slot, dict):
+                raise ValueError("Chaque créneau doit être un objet")
+            start = str(slot.get('start', ''))
+            end   = str(slot.get('end', ''))
+            mode  = str(slot.get('mode', 'auto'))
+            if not _TIME_RE.match(start):
+                raise ValueError(f"Heure de début invalide : {start!r}")
+            if not _TIME_RE.match(end):
+                raise ValueError(f"Heure de fin invalide : {end!r}")
+            if mode not in _SLOT_MODES:
+                raise ValueError(f"Mode de créneau invalide : {mode!r}")
+            vs = {'start': start, 'end': end, 'mode': mode}
+            if 'socTarget' in slot and slot['socTarget'] is not None:
+                soc = int(slot['socTarget'])
+                if not (5 <= soc <= 100):
+                    raise ValueError(f"socTarget hors limites : {soc}")
+                vs['socTarget'] = soc
+            validated_slots.append(vs)
+        cleaned['scheduleSlots'] = validated_slots
+
+    return cleaned
+
+
 class Handler(BaseHTTPRequestHandler):
 
     def _cors(self):
@@ -130,10 +166,13 @@ class Handler(BaseHTTPRequestHandler):
         if self.path == '/api/settings':
             try:
                 data = json.loads(self._body())
-                merged = {**DEFAULT_SETTINGS, **data}
+                validated = _validate_settings(data)
+                merged = {**DEFAULT_SETTINGS, **validated}
                 with open(SETTINGS_FILE, 'w', encoding='utf-8') as f:
                     json.dump(merged, f, indent=2, ensure_ascii=False)
                 self._json(200, {"ok": True})
+            except ValueError as e:
+                self._json(400, {"ok": False, "error": str(e)})
             except Exception as e:
                 self._json(500, {"ok": False, "error": str(e)})
             return

@@ -2671,6 +2671,9 @@
 
 <!-- ===== SCRIPTS ===== -->
 <script>
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
 // ==================== STATE ====================
 const state = {
   ip: '192.168.1.100',
@@ -3663,8 +3666,8 @@ function renderInverterPanel() {
             </svg>
           </div>
           <div>
-            <div style="font-family:var(--font-disp);font-size:15px;font-weight:700;color:var(--text)">${inv.name}</div>
-            <div style="font-size:9px;color:var(--text3);margin-top:1px;letter-spacing:.04em">${inv.serial}</div>
+            <div style="font-family:var(--font-disp);font-size:15px;font-weight:700;color:var(--text)">${esc(inv.name)}</div>
+            <div style="font-size:9px;color:var(--text3);margin-top:1px;letter-spacing:.04em">${esc(inv.serial)}</div>
           </div>
         </div>
         <div style="text-align:right">
@@ -6475,16 +6478,16 @@ function renderScheduleList() {
         <option value="discharge" ${slot.mode==='discharge' ?'selected':''}>Décharge forcée</option>
         <option value="schedule"  ${slot.mode==='schedule'  ?'selected':''}>Programmé</option>
       </select>
-      <input type="time" value="${slot.start}" onchange="updateSlotTime(${idx},'start',this.value)"
+      <input type="time" value="${esc(slot.start)}" onchange="updateSlotTime(${idx},'start',this.value)"
         style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);
         color:var(--text);font-size:11px;padding:4px 8px;font-family:var(--font-mono)">
       <span style="font-size:10px;color:var(--text3)">→</span>
-      <input type="time" value="${slot.end}" onchange="updateSlotTime(${idx},'end',this.value)"
+      <input type="time" value="${esc(slot.end)}" onchange="updateSlotTime(${idx},'end',this.value)"
         style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);
         color:var(--text);font-size:11px;padding:4px 8px;font-family:var(--font-mono)">
       <div style="display:flex;align-items:center;gap:4px;margin-left:4px">
         <span style="font-size:10px;color:var(--text3)">SOC cible</span>
-        <input type="number" min="5" max="100" value="${socTarget}" placeholder="—"
+        <input type="number" min="5" max="100" value="${esc(socTarget)}" placeholder="—"
           onchange="updateSlotSOC(${idx},this.value)"
           style="width:52px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);
           color:var(--text);font-size:11px;padding:4px 6px;font-family:var(--font-mono)">
