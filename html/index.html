@@ -159,6 +159,15 @@
     flex-shrink: 0;
   }
 
+  .logo-text {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 4px;
+  }
+
+  .logo-text svg { display: block; }
+
   .logo-text h1 {
     font-family: var(--font-disp);
     font-size: 20px;
@@ -171,7 +180,7 @@
   .logo-text p {
     font-size: 11px;
     color: var(--text2);
-    margin-top: 2px;
+    margin: 0;
     letter-spacing: .05em;
     text-transform: uppercase;
   }
