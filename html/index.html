@@ -170,6 +170,14 @@
 
   .logo-text svg { display: block; }
 
+  [data-theme="light"] .logo-text svg path { fill: #0a1a14; }
+  [data-theme="light"] .logo-text svg path[fill="#3250C3"] { fill: #3250C3; }
+
+  @media (prefers-color-scheme: light) {
+    :root:not([data-theme="dark"]):not([data-theme="light"]) .logo-text svg path { fill: #0a1a14; }
+    :root:not([data-theme="dark"]):not([data-theme="light"]) .logo-text svg path[fill="#3250C3"] { fill: #3250C3; }
+  }
+
   .logo-text h1 {
     font-family: var(--font-disp);
     font-size: 20px;
