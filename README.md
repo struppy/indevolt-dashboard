@@ -2,7 +2,7 @@
 
 <div align="center">
 
-![Version](https://img.shields.io/badge/version-2.2-00e5a0?style=flat-square)
+![Version](https://img.shields.io/badge/version-2.2.1-00e5a0?style=flat-square)
 ![Docker](https://img.shields.io/badge/docker-ready-2496ED?style=flat-square&logo=docker)
 ![License](https://img.shields.io/badge/license-MIT-green?style=flat-square)
 ![Nginx](https://img.shields.io/badge/nginx-proxy-009639?style=flat-square&logo=nginx)
@@ -384,6 +384,7 @@ docker compose down -v
   - `api.open-meteo.com` — météo (pas de clé API)
   - `api.forecast.solar` — prévision production (pas de clé API)
 - Le dashboard est conçu pour un usage **LAN uniquement** — ne pas exposer sur internet sans authentification
+- Depuis la v2.2.1, les endpoints `/api/`, `/indevolt-api/` et `/opendtu-api/` ne renvoient plus d'en-têtes CORS permissifs (`Access-Control-Allow-Origin: *`) : ils ne sont accessibles qu'en same-origin, ce qui empêche un site tiers de lire/écrire les réglages ou de piloter l'onduleur via le navigateur d'un utilisateur du réseau
 
 ---
 
