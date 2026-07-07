@@ -3733,7 +3733,7 @@ function renderInverterPanel() {
         </div>
         <div style="text-align:right">
           <div style="font-size:12px;font-weight:700;color:${color}">${statusLabel}</div>
-          <div style="font-size:10px;color:var(--text3);margin-top:2px">Limite: ${inv.limit != null ? inv.limit : '—'} W</div>
+          <div style="font-size:10px;color:var(--text3);margin-top:2px">Limite: ${Number.isFinite(inv.limit) ? Math.round(inv.limit) : '—'} W</div>
         </div>
       </div>
 
@@ -5475,7 +5475,7 @@ function renderMasterPack(p) {
         </div>
       </div>
       <div class="pack-soc-bar"><div class="pack-soc-fill" style="width:${p.soc || 0}%"></div></div>
-      <div style="margin-top:8px;font-size:10px;color:var(--text3)">${p.sn ? 'N/S: ' + p.sn : 'N/S: —'} · Capacité: 1 792 Wh</div>
+      <div style="margin-top:8px;font-size:10px;color:var(--text3)">${p.sn ? 'N/S: ' + esc(p.sn) : 'N/S: —'} · Capacité: 1 792 Wh</div>
     </div>
   `;
 }
@@ -5513,7 +5513,7 @@ function renderPacks(master, packs) {
         </div>
       </div>
       <div class="pack-soc-bar"><div class="pack-soc-fill" style="width:${p.soc || 0}%;background:linear-gradient(to right,var(--solar2),var(--solar))"></div></div>
-      <div style="margin-top:8px;font-size:10px;color:var(--text3)">${p.sn ? 'N/S: ' + p.sn : 'N/S: —'} · Capacité: 1 800 Wh</div>
+      <div style="margin-top:8px;font-size:10px;color:var(--text3)">${p.sn ? 'N/S: ' + esc(p.sn) : 'N/S: —'} · Capacité: 1 800 Wh</div>
     </div>
   `).join('');
 
@@ -6915,14 +6915,14 @@ function renderEventJournal() {
       </div>
       <div style="flex:1;min-width:0">
         <div style="display:flex;align-items:baseline;gap:8px;flex-wrap:wrap">
-          <span style="font-size:12px;font-weight:700;color:var(--text)">${ev.title}</span>
-          <span style="font-size:9px;padding:1px 6px;border-radius:100px;background:${sevCol}22;color:${sevCol};border:1px solid ${sevCol}44">${ev.severity}</span>
-          <span style="font-size:9px;color:${meta.color};padding:1px 6px;border-radius:100px;background:${meta.color}11">${meta.label}</span>
+          <span style="font-size:12px;font-weight:700;color:var(--text)">${esc(ev.title)}</span>
+          <span style="font-size:9px;padding:1px 6px;border-radius:100px;background:${sevCol}22;color:${sevCol};border:1px solid ${sevCol}44">${esc(ev.severity)}</span>
+          <span style="font-size:9px;color:${meta.color};padding:1px 6px;border-radius:100px;background:${meta.color}11">${esc(meta.label)}</span>
         </div>
-        ${ev.detail ? `<div style="font-size:11px;color:var(--text3);margin-top:2px">${ev.detail}</div>` : ''}
+        ${ev.detail ? `<div style="font-size:11px;color:var(--text3);margin-top:2px">${esc(ev.detail)}</div>` : ''}
         <div style="font-size:9px;color:var(--text3);margin-top:3px;display:flex;gap:8px">
           <span>${dateStr} ${timeStr}</span>
-          ${ev.installName ? `<span>· ${ev.installName}</span>` : ''}
+          ${ev.installName ? `<span>· ${esc(ev.installName)}</span>` : ''}
         </div>
       </div>
     </div>`;
@@ -7214,7 +7214,7 @@ function _buildNode(val, key, isRoot) {
     toggle.className = 'jt-toggle';
     toggle.textContent = '▾';
     const label = document.createElement('span');
-    label.innerHTML = (key !== null ? `<span class="jt-key">"${key}"</span><span style="color:var(--text3)">: </span>` : '') +
+    label.innerHTML = (key !== null ? `<span class="jt-key">"${esc(key)}"</span><span style="color:var(--text3)">: </span>` : '') +
       `<span style="color:var(--text3)">${isArr ? '[' : '{'} <span style="color:var(--text3);font-size:10px">${entries.length} élément${entries.length>1?'s':''}</span></span>`;
     row.appendChild(toggle);
     row.appendChild(label);
@@ -7236,8 +7236,8 @@ function _buildNode(val, key, isRoot) {
     if (val === null)           valHtml = `<span class="jt-null">null</span>`;
     else if (typeof val === 'boolean') valHtml = `<span class="jt-bool">${val}</span>`;
     else if (typeof val === 'number')  valHtml = `<span class="jt-num">${val}</span>`;
-    else                               valHtml = `<span class="jt-str">"${val}"</span>`;
-    row.innerHTML = (key !== null ? `<span class="jt-toggle" style="visibility:hidden">▾</span><span class="jt-key">"${key}"</span><span style="color:var(--text3)">: </span>` : '') + valHtml;
+    else                               valHtml = `<span class="jt-str">"${esc(val)}"</span>`;
+    row.innerHTML = (key !== null ? `<span class="jt-toggle" style="visibility:hidden">▾</span><span class="jt-key">"${esc(key)}"</span><span style="color:var(--text3)">: </span>` : '') + valHtml;
     wrap.appendChild(row);
   }
   return wrap;
