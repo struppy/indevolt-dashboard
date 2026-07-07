@@ -7,6 +7,17 @@ Versioning basé sur [Semantic Versioning](https://semver.org/lang/fr/)
 
 ---
 
+## [2.2.1] - 2026-07-07
+
+### Corrigé
+- Faille CORS wildcard (`Access-Control-Allow-Origin: *`) combinée à l'absence d'authentification sur `settings_api.py` et les proxys nginx (`/api/`, `/indevolt-api/`, `/opendtu-api/`) : n'importe quel site web pouvait lire/écrire les réglages et piloter l'onduleur (charge/décharge forcée) depuis le navigateur de la victime
+- XSS stockée dans le journal d'événements : un registre onduleur non reconnu pouvait injecter du JS persistant, exécuté à chaque ouverture de l'onglet Logs
+- XSS dans le visualiseur JSON de l'onglet API tester : clés/valeurs de réponse d'appareil injectées sans échappement
+- XSS via le numéro de série des packs batterie (SFA1800) non échappé
+- `inv.limit` (OpenDTU) non coercé en nombre avant affichage
+
+---
+
 ## [2.2.0] - 2026-05-08
 
 ### Ajouté
