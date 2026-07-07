@@ -417,6 +417,16 @@ Les données persistantes dans `data/store/` ne sont pas affectées.
 
 ## 📋 Changelog
 
+### v2.2.1 — 2026-07-07
+
+- 🔒 **Correctif sécurité critique** — suppression du CORS wildcard (`Access-Control-Allow-Origin: *`) sur `settings_api.py` et les proxys nginx (`/api/`, `/indevolt-api/`, `/opendtu-api/`) : un site tiers pouvait lire/écrire les réglages et piloter l'onduleur depuis le navigateur d'un utilisateur du réseau
+- 🐛 Fix XSS stockée dans le journal d'événements (registre onduleur non reconnu injecté sans échappement)
+- 🐛 Fix XSS dans le visualiseur JSON de l'onglet API tester
+- 🐛 Fix XSS via le numéro de série des packs batterie (SFA1800) non échappé
+- 🐛 Fix `inv.limit` (OpenDTU) non coercé en nombre avant affichage
+
+Voir [`CHANGELOG.md`](./CHANGELOG.md) pour le détail complet.
+
 ### v2.2 — 2026-03-27
 
 - 🗑️ **Suppression onglet Comparatif** — fonctionnalité multi-installations retirée
