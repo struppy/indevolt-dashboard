@@ -5103,6 +5103,7 @@ function processData(d) {
 
   renderPacks(masterPack, packs);
   updateCharts(soc, totalSolar, batPower, meterPower, totalConso);
+  batCycleUpdate(soc, batPower, settings.capacity);
   updateFlowDiagram({ totalSolar, batPower, meterPower, acOut, bypass: bypassPow, totalConso });
   // Recalculer les positions SVG après chaque cycle de données
   requestAnimationFrame(updateFlowLines);
