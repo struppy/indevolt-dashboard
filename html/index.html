@@ -2627,11 +2627,11 @@
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:4px">
         <div>
           <label style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;display:block;margin-bottom:5px">Cycles au départ</label>
-          <input id="settingCycleStart" type="number" min="0" max="6000" value="0" style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);color:var(--text);font-size:13px;padding:7px 10px;outline:none;box-sizing:border-box">
+          <input id="settingCycleStart" type="number" min="0" max="6000" value="0" oninput="saveSettings()" style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);color:var(--text);font-size:13px;padding:7px 10px;outline:none;box-sizing:border-box">
         </div>
         <div>
           <label style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;display:block;margin-bottom:5px">Date de mise en service</label>
-          <input id="settingCycleDate" type="date" style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);color:var(--text);font-size:13px;padding:7px 10px;outline:none;box-sizing:border-box">
+          <input id="settingCycleDate" type="date" onchange="saveSettings()" style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);color:var(--text);font-size:13px;padding:7px 10px;outline:none;box-sizing:border-box">
         </div>
       </div>
 
@@ -4068,83 +4068,10 @@ function drawRadiationChart(data) {
 }
 
 // ==================== BATTERIE — CYCLES & DÉGRADATION ====================
-
-// État interne suivi de charge
-const _batTrack = {
-  wasCharging:   false,
-  cycleAccum:    0,      // énergie accumulée en charge (Wh) pour cycle partiel
-  lastSOC:       null,
-  lastCycleSOC:  null,   // SOC au début du cycle de charge en cours
-  degradHistory: [],     // { date, socMax } sur 30 jours
-};
-
-function batCycleUpdate(soc, batPower, capacity) {
-  if (soc === null || batPower === null) return;
-
-  const isCharging = batPower > 20;
-  const cap = capacity || settings.capacity || 3584;
-
-  // Détecter début de charge
-  if (isCharging && !_batTrack.wasCharging) {
-    _batTrack.lastCycleSOC = soc;
-  }
-
-  // Accumulation d'énergie en charge (Wh sur 30s)
-  if (isCharging) {
-    _batTrack.cycleAccum += batPower * (30 / 3600);
-  }
-
-  // Fin de charge : SOC ≥ 95% ou arrêt de charge
-  if (_batTrack.wasCharging && (!isCharging || soc >= 95)) {
-    const socMax = Math.max(soc, _batTrack.lastCycleSOC || soc);
-    // Enregistrer SOC max pour dégradation
-    _batDegradPush(socMax);
-    // Comptabiliser le cycle (énergie accumulée / capacité = fraction de cycle)
-    const cycleFraction = _batTrack.cycleAccum / cap;
-    if (cycleFraction > 0.05) {  // ignorer micro-charges
-      _batCycleAdd(cycleFraction);
-    }
-    _batTrack.cycleAccum = 0;
-  }
-
-  _batTrack.wasCharging = isCharging;
-  _batTrack.lastSOC = soc;
-}
-
-function _batDegradPush(socMax) {
-  try {
-    const today = new Date().toISOString().slice(0,10);
-    const raw = localStorage.getItem('indevolt_degrad');
-    const h = raw ? JSON.parse(raw) : [];
-    const last = h[h.length - 1];
-    if (last && last.date === today) {
-      last.socMax = Math.max(last.socMax, socMax);
-    } else {
-      h.push({ date: today, socMax: Math.round(socMax) });
-    }
-    // Garder 60 jours
-    while (h.length > 60) h.shift();
-    serverStore.set('indevolt_degrad', h);
-  } catch(e) {}
-}
-
-function _batCycleAdd(fraction) {
-  try {
-    const raw = localStorage.getItem('indevolt_cycles');
-    const d = raw ? JSON.parse(raw) : { total: 0, log: [] };
-    d.total = (d.total || 0) + fraction;
-    const today = new Date().toISOString().slice(0,10);
-    const last = d.log[d.log.length - 1];
-    if (last && last.date === today) {
-      last.count = (last.count || 0) + fraction;
-    } else {
-      d.log.push({ date: today, count: fraction });
-    }
-    while (d.log.length > 365) d.log.shift();
-    serverStore.set('indevolt_cycles', d);
-    updateCycleDisplay();
-  } catch(e) {}
-}
+// Le calcul des cycles/dégradation tourne désormais côté serveur (battery_poll_loop()
+// dans settings_api.py), en continu, indépendamment de tout onglet ouvert. Le frontend
+// ne fait plus qu'afficher les valeurs synchronisées depuis le serveur (cf. getCycleData()
+// et la resynchronisation périodique dans le bloc DOMContentLoaded).
 
 function getCycleData() {
   try {
@@ -5103,7 +5030,7 @@ function processData(d) {
 
   renderPacks(masterPack, packs);
   updateCharts(soc, totalSolar, batPower, meterPower, totalConso);
-  batCycleUpdate(soc, batPower, settings.capacity);
+  // Cycles/dégradation batterie : suivi continu côté serveur (settings-api), voir battery_poll_loop()
   updateFlowDiagram({ totalSolar, batPower, meterPower, acOut, bypass: bypassPow, totalConso });
   // Recalculer les positions SVG après chaque cycle de données
   requestAnimationFrame(updateFlowLines);
@@ -5993,6 +5920,7 @@ function saveSettings() {
   const _taeEl2= document.getElementById('settingTempAlertEnabled'); if (_taeEl2) settings.tempAlertEnabled = _taeEl2.checked;
   const _csEl2 = document.getElementById('settingCycleStart');       if (_csEl2) settings.cycleStartCount = parseFloat(_csEl2.value) || 0;
   const _cdEl2 = document.getElementById('settingCycleDate');        if (_cdEl2) settings.cycleStartDate  = _cdEl2.value || '';
+  updateCycleDisplay();
   settings.priceExport     = document.getElementById('settingPriceExport').value !== '' ? parseFloat(document.getElementById('settingPriceExport').value) : 0.13;
   const _thSel = document.getElementById('settingTheme');
   if (_thSel) { settings.theme = _thSel.value; applyTheme(settings.theme); }
@@ -7330,6 +7258,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     draw30DayChart();
     drawWeekCompare();
   });
+  // Resynchroniser cycles/dégradation batterie pendant que l'onglet reste ouvert
+  // (suivi désormais continu côté serveur, même onglet fermé — cf. battery_poll_loop())
+  setInterval(() => {
+    serverStore.syncFromServer().then(() => {
+      updateCycleDisplay();
+      drawDegradChart();
+    });
+  }, 5 * 60 * 1000);
 
   // Demander permission push si déjà accordée (silencieux)
   if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
