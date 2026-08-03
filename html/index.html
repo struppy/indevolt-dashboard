@@ -3114,7 +3114,7 @@ function switchTab(id) {
   window._currentTab = id;
   // Charger les données comparatives si on ouvre l'onglet comparatif
   
-  if (id === 'packs')   { renderScheduleTimeline(); }
+  if (id === 'packs')   { renderScheduleTimeline(); requestAnimationFrame(drawDegradChart); }
   if (id === 'history') { requestAnimationFrame(() => { draw30DayChart(); drawWeekCompare(); }); }
   if (id === 'logs')    { renderEventJournal(); }
   // Mettre à jour la bottom nav si présente
