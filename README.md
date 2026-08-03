@@ -2,7 +2,7 @@
 
 <div align="center">
 
-![Version](https://img.shields.io/badge/version-2.2.1-00e5a0?style=flat-square)
+![Version](https://img.shields.io/badge/version-2.2.2-00e5a0?style=flat-square)
 ![Docker](https://img.shields.io/badge/docker-ready-2496ED?style=flat-square&logo=docker)
 ![License](https://img.shields.io/badge/license-MIT-green?style=flat-square)
 ![Nginx](https://img.shields.io/badge/nginx-proxy-009639?style=flat-square&logo=nginx)
@@ -416,6 +416,11 @@ Les données persistantes dans `data/store/` ne sont pas affectées.
 ---
 
 ## 📋 Changelog
+
+### v2.2.2 — 2026-08-03
+
+- 🐛 **Fix cycles batterie fiables** — le compteur de cycles de charge estimés restait bloqué à 0 et n'évoluait jamais : la fonction de détection de cycle n'était jamais appelée depuis la boucle de traitement des données, et le suivi de charge en cours vivait uniquement en mémoire du navigateur (perdu à chaque rechargement de page). Le calcul tourne désormais en continu côté sidecar Python (`settings-api`), indépendamment de tout onglet ouvert
+- 🐛 Fix compteur de cycles initial ("Cycles au départ") : la valeur saisie dans les paramètres n'était jamais sauvegardée (handlers `oninput`/`onchange` manquants sur les champs)
 
 ### v2.2.1 — 2026-07-07
 

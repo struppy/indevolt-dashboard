@@ -7,6 +7,15 @@ Versioning basé sur [Semantic Versioning](https://semver.org/lang/fr/)
 
 ---
 
+## [2.2.2] - 2026-08-03
+
+### Corrigé
+- Le compteur de cycles de charge estimés restait bloqué à 0 et n'évoluait jamais : `batCycleUpdate()` contenait la logique de détection de cycle mais n'était jamais appelée depuis `processData()`, la boucle exécutée à chaque poll
+- Le suivi de charge en cours (`_batTrack`) vivait uniquement en mémoire JavaScript du navigateur et repartait à zéro à chaque rechargement de page — la progression d'un cycle en cours était donc perdue en permanence, empêchant tout comptage réel. Le calcul (cycles + courbe de dégradation SOC max) tourne désormais en continu dans le sidecar Python `settings-api` (`battery_poll_loop()`, poll direct de l'appareil toutes les 60s), indépendamment de tout onglet ouvert ; le frontend affiche les valeurs via synchronisation périodique (5 min)
+- Le compteur de cycles initial ("Cycles au départ") saisi dans les paramètres n'apparaissait jamais dans la vue Cycles : les champs correspondants n'avaient aucun handler `oninput`/`onchange`, la valeur n'était donc jamais sauvegardée
+
+---
+
 ## [2.2.1] - 2026-07-07
 
 ### Corrigé
