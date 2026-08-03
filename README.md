@@ -128,17 +128,11 @@ Ces paramètres sont à renseigner **dans l'interface** (onglet ⚙️ Paramètr
 Si vous utilisez des micro-onduleurs avec OpenDTU :
 
 1. Activer **OpenDTU** dans Paramètres → renseigner l'IP de votre passerelle OpenDTU
-2. Les serials des micro-onduleurs sont à modifier dans `html/index.html` :
+2. C'est tout — **aucune modification de code requise**
 
-```javascript
-// Chercher et remplacer ces serials par les vôtres
-// (onglet Paramètres > OpenDTU > Serial visible sur l'étiquette de chaque micro-onduleur)
-const HM400_SERIAL  = '112182049764';   // ← Remplacer
-const HM800_1_SERIAL = '114174940383';  // ← Remplacer
-const HM800_2_SERIAL = '114174939600';  // ← Remplacer
-```
+Le dashboard interroge automatiquement l'API OpenDTU (`/api/livedata/status`) et détecte tous les onduleurs déclarés dans OpenDTU. Ajouter ou retirer un onduleur dans OpenDTU se reflète au prochain poll (~30 s), sans toucher à `index.html`.
 
-> 💡 Les serials se trouvent sur l'étiquette de chaque micro-onduleur ET dans l'interface web d'OpenDTU.
+> 💡 Si un onduleur ne remonte pas de données AC/DC détaillées, le dashboard affiche une estimation proportionnelle à sa limite de puissance (indiqué visuellement).
 
 ---
 
@@ -394,7 +388,7 @@ docker compose down -v
 > Vérifiez que l'IP de l'onduleur est correcte dans Paramètres. Vérifiez que le serveur Docker est sur le même sous-réseau que l'onduleur. Testez `curl http://IP_ONDULEUR:8080/Indevolt.GetData` depuis le serveur.
 
 **Les micro-onduleurs affichent 0 W**
-> Activez OpenDTU dans Paramètres, renseignez l'IP de votre passerelle OpenDTU, et vérifiez que les serials correspondent à vos appareils (étiquette sur le boîtier).
+> Activez OpenDTU dans Paramètres et renseignez l'IP de votre passerelle OpenDTU. Les onduleurs sont détectés automatiquement — vérifiez qu'ils sont bien déclarés dans l'interface OpenDTU.
 
 **La prévision solaire semble incorrecte**
 > Ajustez la puissance crête (W), l'inclinaison et l'azimuth dans l'onglet Solaire. Ces 3 paramètres sont essentiels pour forecast.solar.
