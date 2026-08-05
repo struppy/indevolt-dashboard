@@ -3693,6 +3693,13 @@ function drawSolarDayChart() {
     const lastPw = h.pw[n-1];
     ctx.fillStyle = '#f5c842'; ctx.font = `bold ${11 * dpr}px monospace`; ctx.textAlign = 'left';
     ctx.fillText('↑ ' + lastPw + ' W', pad.left + 4 * dpr, pad.top + 14 * dpr);
+    // Info-bulle interactive au survol
+    attachChartHover(canvas, drawSolarDayChart);
+    drawHoverMarker(ctx, {
+      canvasId: 'chartSolarDay', n, xs, ys, values: h.pw,
+      label: fmtTime, unit: ' W', color: '#f5c842',
+      pad, W, H, dpr, cc,
+    });
   } catch(e) {}
 }
 
@@ -3929,6 +3936,7 @@ function drawForecastSolarChart(slots) {
   const setup = setupChartCanvas(canvas, 400, 90);
   if (!setup) return;
   const { ctx, W, H, dpr, cc } = setup;
+  window._lastForecastSlots = slots;
   const pad = { top:8*dpr, right:8*dpr, bottom:22*dpr, left:36*dpr };
   const gw = W-pad.left-pad.right, gh = H-pad.top-pad.bottom;
   const maxV = Math.max(10, ...slots.map(s => s.wh)) * 1.1;
@@ -3978,6 +3986,14 @@ function drawForecastSolarChart(slots) {
     ctx.beginPath(); ctx.moveTo(xs(pastIdx),pad.top); ctx.lineTo(xs(pastIdx),pad.top+gh); ctx.stroke();
     ctx.setLineDash([]);
   }
+
+  // Info-bulle interactive au survol
+  attachChartHover(canvas, () => drawForecastSolarChart(window._lastForecastSlots));
+  drawHoverMarker(ctx, {
+    canvasId: 'chartForecastSolar', n, xs, ys, values: slots.map(s => s.wh),
+    label: i => slots[i].h + 'h', unit: ' Wh', color: '#f5c842',
+    pad, W, H, dpr, cc,
+  });
 }
 
 function wmoIcon(code) {
@@ -5704,6 +5720,50 @@ function setupChartCanvas(canvas, fallbackW, fallbackH) {
   const ctx = canvas.getContext('2d');
   ctx.clearRect(0, 0, W, H);
   return { ctx, W, H, dpr, cc: getCanvasColors() };
+}
+
+// ── Info-bulle interactive au survol pour les graphiques « instantané » ──
+// (courbe simple redessinée en entier à chaque appel — cf. setupChartCanvas).
+// Contrairement à SimpleChart/MultiChart, ces graphiques n'ont pas d'état
+// persistant : on mémorise juste la position de survol par id de canvas, et
+// on redessine tout le graphique (qui replace lui-même le repère).
+const _chartHoverState = {};
+
+function attachChartHover(canvas, redraw) {
+  if (!canvas || canvas._hoverAttached) return;
+  canvas._hoverAttached = true;
+  const state = (_chartHoverState[canvas.id] = { mx: null });
+  canvas.addEventListener('mousemove', e => {
+    const r = canvas.getBoundingClientRect();
+    state.mx = (e.clientX - r.left) * (canvas.width / (r.width || 1));
+    redraw();
+  });
+  canvas.addEventListener('mouseleave', () => { state.mx = null; redraw(); });
+}
+
+// Dessine le repère pointillé + la bulle de valeur à la position de survol
+// mémorisée pour ce canvas (no-op si la souris n'est pas dessus).
+function drawHoverMarker(ctx, { canvasId, n, xs, ys, values, label, unit, color, pad, W, H, dpr, cc }) {
+  const state = _chartHoverState[canvasId];
+  if (!state || state.mx == null || n < 2) return;
+  const gw  = W - pad.left - pad.right;
+  const idx = Math.max(0, Math.min(n - 1, Math.round((state.mx - pad.left) / gw * (n - 1))));
+  const x = xs(idx), y = ys(values[idx]);
+  ctx.strokeStyle = cc.grid; ctx.lineWidth = 1; ctx.setLineDash([4*dpr, 3*dpr]);
+  ctx.beginPath(); ctx.moveTo(x, pad.top); ctx.lineTo(x, H - pad.bottom); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle = color;
+  ctx.beginPath(); ctx.arc(x, y, 3*dpr, 0, Math.PI*2); ctx.fill();
+  const tip = Math.round(values[idx]) + (unit || '') + '  ' + label(idx);
+  ctx.font = (10*dpr) + 'px monospace';
+  ctx.textAlign = 'left';
+  const tw = ctx.measureText(tip).width + 12*dpr;
+  const tx = Math.min(x + 8*dpr, W - tw - 4*dpr);
+  const ty = Math.max(pad.top + 14*dpr, y - 10*dpr);
+  ctx.fillStyle = 'rgba(15,20,23,.85)';
+  ctx.beginPath(); ctx.roundRect(tx - 4*dpr, ty - 13*dpr, tw, 18*dpr, 3*dpr); ctx.fill();
+  ctx.fillStyle = '#dce8e0';
+  ctx.fillText(tip, tx, ty);
 }
 
 function fmtDateShort(iso) {
