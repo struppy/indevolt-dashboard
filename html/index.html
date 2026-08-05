@@ -2809,9 +2809,10 @@ class SimpleChart {
     window.addEventListener('resize', () => this.resize());
     // P11 — Tooltip interactif
     canvas.addEventListener('mousemove', e => {
+      const dpr = window.devicePixelRatio || 1;
       const r = canvas.getBoundingClientRect();
       const mx = (e.clientX - r.left) * (canvas.width / r.width);
-      const pad = { left: 40, right: 10 };
+      const pad = { left: 40*dpr, right: 10*dpr };
       const w = canvas.width - pad.left - pad.right;
       if (this.data.length < 2) return;
       const idx = Math.round((mx - pad.left) / w * (this.data.length - 1));
@@ -2821,9 +2822,11 @@ class SimpleChart {
     canvas.addEventListener('mouseleave', () => { this.hoverIdx = null; this.draw(); });
   }
   resize() {
+    const dpr = window.devicePixelRatio || 1;
     const r = this.canvas.parentElement.getBoundingClientRect();
-    this.canvas.width  = r.width || 800;
-    this.canvas.height = 160;
+    const cssW = r.width || 800;
+    this.canvas.width  = cssW * dpr;
+    this.canvas.height = 160 * dpr;
     this.draw();
   }
   push(label, value) {
@@ -2841,12 +2844,13 @@ class SimpleChart {
   draw() {
     const { ctx, canvas, opts } = this;
     const cc = getCanvasColors();
+    const dpr = window.devicePixelRatio || 1;
     const { data, labels } = this.getVisible();
     const W = canvas.width, H = canvas.height;
     ctx.clearRect(0, 0, W, H);
     if (!data.length) return;
 
-    const pad = { top:10, right:10, bottom:24, left:40 };
+    const pad = { top:10*dpr, right:10*dpr, bottom:24*dpr, left:40*dpr };
     const w = W - pad.left - pad.right;
     const h = H - pad.top - pad.bottom;
     const max = Math.max(...data, 1);
@@ -2860,8 +2864,8 @@ class SimpleChart {
       const y = pad.top + h - (i / 4) * h;
       ctx.beginPath(); ctx.moveTo(pad.left, y); ctx.lineTo(W - pad.right, y); ctx.stroke();
       ctx.fillStyle = cc.label;
-      ctx.font = '9px Space Mono, monospace';
-      ctx.fillText(Math.round(min + (i / 4) * range), 4, y + 3);
+      ctx.font = (9*dpr) + 'px Space Mono, monospace';
+      ctx.fillText(Math.round(min + (i / 4) * range), 4*dpr, y + 3*dpr);
     }
 
     if (data.length < 2) return;
@@ -2885,7 +2889,7 @@ class SimpleChart {
     // Line
     ctx.beginPath();
     ctx.strokeStyle = opts.color;
-    ctx.lineWidth = 2;
+    ctx.lineWidth = 2 * dpr;
     ctx.lineJoin = 'round';
     data.forEach((v, i) => {
       const x = pad.left + (i / (data.length - 1)) * w;
@@ -2901,20 +2905,20 @@ class SimpleChart {
       const y = pad.top + h - ((data[i] - min) / range) * h;
       ctx.strokeStyle = cc.grid;
       ctx.lineWidth = 1;
-      ctx.setLineDash([4, 3]);
+      ctx.setLineDash([4*dpr, 3*dpr]);
       ctx.beginPath(); ctx.moveTo(x, pad.top); ctx.lineTo(x, pad.top + h); ctx.stroke();
       ctx.setLineDash([]);
       ctx.fillStyle = opts.color;
-      ctx.beginPath(); ctx.arc(x, y, 4, 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath(); ctx.arc(x, y, 4*dpr, 0, Math.PI * 2); ctx.fill();
       const label = labels[i] || '';
       const val   = Math.round(data[i]);
       const tip   = val + (opts.unit || '') + '  ' + label;
-      ctx.font = '10px Space Mono, monospace';
-      const tw = ctx.measureText(tip).width + 12;
-      const tx = Math.min(x + 8, W - tw - 4);
-      const ty = Math.max(pad.top + 16, y - 10);
+      ctx.font = (10*dpr) + 'px Space Mono, monospace';
+      const tw = ctx.measureText(tip).width + 12*dpr;
+      const tx = Math.min(x + 8*dpr, W - tw - 4*dpr);
+      const ty = Math.max(pad.top + 16*dpr, y - 10*dpr);
       ctx.fillStyle = 'rgba(15,20,23,.85)';
-      ctx.beginPath(); ctx.roundRect(tx - 4, ty - 13, tw, 18, 3); ctx.fill();
+      ctx.beginPath(); ctx.roundRect(tx - 4*dpr, ty - 13*dpr, tw, 18*dpr, 3*dpr); ctx.fill();
       ctx.fillStyle = '#dce8e0';
       ctx.fillText(tip, tx, ty);
     }
@@ -2932,9 +2936,10 @@ class MultiChart {
     window.addEventListener('resize', () => this.resize());
     // P11 — Tooltip interactif MultiChart
     canvas.addEventListener('mousemove', e => {
+      const dpr = window.devicePixelRatio || 1;
       const r = canvas.getBoundingClientRect();
       const mx = (e.clientX - r.left) * (canvas.width / r.width);
-      const pad = { left: 50, right: 10 };
+      const pad = { left: 50*dpr, right: 10*dpr };
       const w = canvas.width - pad.left - pad.right;
       const maxLen = Math.max(...this.series.map(s => s.data.length), 1);
       if (maxLen < 2) return;
@@ -2945,9 +2950,11 @@ class MultiChart {
     canvas.addEventListener('mouseleave', () => { this.hoverIdx = null; this.draw(); });
   }
   resize() {
+    const dpr = window.devicePixelRatio || 1;
     const r = this.canvas.parentElement.getBoundingClientRect();
-    this.canvas.width  = r.width || 800;
-    this.canvas.height = 160;
+    const cssW = r.width || 800;
+    this.canvas.width  = cssW * dpr;
+    this.canvas.height = 160 * dpr;
     this.draw();
   }
   push(label, values) {
@@ -2970,13 +2977,14 @@ class MultiChart {
   draw() {
     const { ctx, canvas } = this;
     const cc = getCanvasColors();
+    const dpr = window.devicePixelRatio || 1;
     const { labels, series } = this.getVisible();
     const W = canvas.width, H = canvas.height;
     ctx.clearRect(0, 0, W, H);
     const allData = series.flatMap(s => s.data);
     if (!allData.length) return;
 
-    const pad = { top:10, right:10, bottom:24, left:50 };
+    const pad = { top:10*dpr, right:10*dpr, bottom:24*dpr, left:50*dpr };
     const w = W - pad.left - pad.right;
     const h = H - pad.top - pad.bottom;
     const max = Math.max(...allData, 1);
@@ -2989,15 +2997,15 @@ class MultiChart {
       const y = pad.top + h - (i / 4) * h;
       ctx.beginPath(); ctx.moveTo(pad.left, y); ctx.lineTo(W - pad.right, y); ctx.stroke();
       ctx.fillStyle = cc.label;
-      ctx.font = '9px Space Mono, monospace';
-      ctx.fillText(Math.round(min + (i / 4) * range), 2, y + 3);
+      ctx.font = (9*dpr) + 'px Space Mono, monospace';
+      ctx.fillText(Math.round(min + (i / 4) * range), 2*dpr, y + 3*dpr);
     }
 
     series.forEach(s => {
       if (s.data.length < 2) return;
       ctx.beginPath();
       ctx.strokeStyle = s.color;
-      ctx.lineWidth = 2;
+      ctx.lineWidth = 2 * dpr;
       ctx.lineJoin = 'round';
       s.data.forEach((v, i) => {
         const x = pad.left + (i / (s.data.length - 1)) * w;
@@ -3014,26 +3022,26 @@ class MultiChart {
       const x = pad.left + (i / Math.max(maxLen - 1, 1)) * w;
       ctx.strokeStyle = cc.grid;
       ctx.lineWidth = 1;
-      ctx.setLineDash([4, 3]);
+      ctx.setLineDash([4*dpr, 3*dpr]);
       ctx.beginPath(); ctx.moveTo(x, pad.top); ctx.lineTo(x, pad.top + h); ctx.stroke();
       ctx.setLineDash([]);
       const label = labels[i] || '';
       let tipLines = series.map(s => ({ color: s.color, text: s.label + ': ' + Math.round(s.data[i] || 0) + ' W' }));
-      const lineH = 14, tipW = 120, tipH = tipLines.length * lineH + 8;
-      const tx = Math.min(x + 8, W - tipW - 4);
-      const ty = Math.max(pad.top + 4, (H - tipH) / 2);
+      const lineH = 14*dpr, tipW = 120*dpr, tipH = tipLines.length * lineH + 8*dpr;
+      const tx = Math.min(x + 8*dpr, W - tipW - 4*dpr);
+      const ty = Math.max(pad.top + 4*dpr, (H - tipH) / 2);
       ctx.fillStyle = 'rgba(15,20,23,.88)';
-      ctx.beginPath(); ctx.roundRect(tx, ty, tipW, tipH, 4); ctx.fill();
-      ctx.font = '9px Space Mono, monospace';
+      ctx.beginPath(); ctx.roundRect(tx, ty, tipW, tipH, 4*dpr); ctx.fill();
+      ctx.font = (9*dpr) + 'px Space Mono, monospace';
       ctx.fillStyle = '#8fa8a0';
-      ctx.fillText(label, tx + 6, ty + 10);
+      ctx.fillText(label, tx + 6*dpr, ty + 10*dpr);
       tipLines.forEach((l, li) => {
         ctx.fillStyle = l.color;
-        ctx.fillText(l.text, tx + 6, ty + 10 + (li + 1) * lineH);
+        ctx.fillText(l.text, tx + 6*dpr, ty + 10*dpr + (li + 1) * lineH);
         series[li].data[i] != null && (() => {
           const dy = pad.top + h - ((series[li].data[i] - min) / (range || 1)) * h;
           ctx.fillStyle = series[li].color;
-          ctx.beginPath(); ctx.arc(x, dy, 3, 0, Math.PI * 2); ctx.fill();
+          ctx.beginPath(); ctx.arc(x, dy, 3*dpr, 0, Math.PI * 2); ctx.fill();
         })();
       });
     }
