@@ -2840,6 +2840,7 @@ class SimpleChart {
   }
   draw() {
     const { ctx, canvas, opts } = this;
+    const cc = getCanvasColors();
     const { data, labels } = this.getVisible();
     const W = canvas.width, H = canvas.height;
     ctx.clearRect(0, 0, W, H);
@@ -2853,12 +2854,12 @@ class SimpleChart {
     const range = max - min || 1;
 
     // Grid lines
-    ctx.strokeStyle = '#1e2830';
+    ctx.strokeStyle = cc.grid;
     ctx.lineWidth = 1;
     for (let i = 0; i <= 4; i++) {
       const y = pad.top + h - (i / 4) * h;
       ctx.beginPath(); ctx.moveTo(pad.left, y); ctx.lineTo(W - pad.right, y); ctx.stroke();
-      ctx.fillStyle = '#4a6a60';
+      ctx.fillStyle = cc.label;
       ctx.font = '9px Space Mono, monospace';
       ctx.fillText(Math.round(min + (i / 4) * range), 4, y + 3);
     }
@@ -2968,6 +2969,7 @@ class MultiChart {
   }
   draw() {
     const { ctx, canvas } = this;
+    const cc = getCanvasColors();
     const { labels, series } = this.getVisible();
     const W = canvas.width, H = canvas.height;
     ctx.clearRect(0, 0, W, H);
@@ -2981,12 +2983,12 @@ class MultiChart {
     const min = Math.min(...allData, 0);
     const range = max - min || 1;
 
-    ctx.strokeStyle = '#1e2830';
+    ctx.strokeStyle = cc.grid;
     ctx.lineWidth = 1;
     for (let i = 0; i <= 4; i++) {
       const y = pad.top + h - (i / 4) * h;
       ctx.beginPath(); ctx.moveTo(pad.left, y); ctx.lineTo(W - pad.right, y); ctx.stroke();
-      ctx.fillStyle = '#4a6a60';
+      ctx.fillStyle = cc.label;
       ctx.font = '9px Space Mono, monospace';
       ctx.fillText(Math.round(min + (i / 4) * range), 2, y + 3);
     }
@@ -3644,7 +3646,7 @@ function drawSolarDayChart() {
     const W = canvas.offsetWidth * dpr, H = canvas.offsetHeight * dpr;
     canvas.width = W; canvas.height = H;
     ctx.clearRect(0, 0, W, H);
-    const pad = { top: 16, right: 16, bottom: 28, left: 48 };
+    const pad = { top: 16*dpr, right: 16*dpr, bottom: 28*dpr, left: 48*dpr };
     const gw = W - pad.left - pad.right;
     const gh = H - pad.top - pad.bottom;
     const maxPw = Math.max(10, ...h.pw) * 1.1;
@@ -3657,7 +3659,7 @@ function drawSolarDayChart() {
       const y = pad.top + gh * (1 - f);
       ctx.beginPath(); ctx.moveTo(pad.left, y); ctx.lineTo(W - pad.right, y); ctx.stroke();
       ctx.fillStyle = cc.label; ctx.font = `${10 * dpr}px monospace`;
-      ctx.fillText(Math.round(maxPw * f) + 'W', 2, y + 4 * dpr);
+      ctx.fillText(Math.round(maxPw * f) + 'W', 2 * dpr, y + 4 * dpr);
     });
     // Aire
     const grad = ctx.createLinearGradient(0, pad.top, 0, pad.top + gh);
@@ -3674,12 +3676,15 @@ function drawSolarDayChart() {
     ctx.stroke();
     // Labels temps (toutes les 2h environ)
     const step = Math.max(1, Math.floor(n / 8));
+    const fmtTime = i => { const d = new Date(h.ts[i]); return d.getHours() + 'h' + String(d.getMinutes()).padStart(2,'0'); };
     ctx.fillStyle = cc.label2; ctx.font = `${9 * dpr}px monospace`;
     ctx.textAlign = 'center';
-    for (let i = 0; i < n; i += step) {
-      const d = new Date(h.ts[i]);
-      ctx.fillText(d.getHours() + 'h' + String(d.getMinutes()).padStart(2,'0'), xs(i), H - 6 * dpr);
+    for (let i = 0; i < n - 1; i += step) {
+      ctx.fillText(fmtTime(i), xs(i), H - 6 * dpr);
     }
+    // Dernier point : toujours affiché, ancré à droite pour éviter le rognage
+    ctx.textAlign = 'right';
+    ctx.fillText(fmtTime(n-1), W - pad.right, H - 6 * dpr);
     // Valeur actuelle
     const lastPw = h.pw[n-1];
     ctx.fillStyle = '#f5c842'; ctx.font = `bold ${11 * dpr}px monospace`; ctx.textAlign = 'left';
@@ -3928,7 +3933,7 @@ function drawForecastSolarChart(slots) {
   const W = canvas.width, H = canvas.height;
   const ctx = canvas.getContext('2d');
   ctx.clearRect(0,0,W,H);
-  const pad = { top:8, right:8, bottom:22, left:36 };
+  const pad = { top:8*dpr, right:8*dpr, bottom:22*dpr, left:36*dpr };
   const gw = W-pad.left-pad.right, gh = H-pad.top-pad.bottom;
   const maxV = Math.max(10, ...slots.map(s => s.wh)) * 1.1;
   const n = slots.length;
@@ -3959,14 +3964,16 @@ function drawForecastSolarChart(slots) {
   [0, Math.round(maxV/2), Math.round(maxV)].forEach(v => {
     const y=ys(v);
     ctx.fillStyle=cc.label; ctx.font=(8*dpr)+'px monospace'; ctx.textAlign='right';
-    ctx.fillText((v/1000).toFixed(1)+'k', pad.left-3, y+3*dpr);
+    ctx.fillText((v/1000).toFixed(1)+'k', pad.left-3*dpr, y+3*dpr);
   });
 
   // Labels heures
-  ctx.fillStyle=cc.label2; ctx.font=(8*dpr)+'px monospace'; ctx.textAlign='center';
+  ctx.fillStyle=cc.label2; ctx.font=(8*dpr)+'px monospace';
   slots.filter(s => s.h % 3 === 0).forEach(s => {
     const i = slots.indexOf(s);
-    ctx.fillText(s.h+'h', xs(i), H-4*dpr);
+    const isLast = i === n-1;
+    ctx.textAlign = isLast ? 'right' : 'center';
+    ctx.fillText(s.h+'h', isLast ? W - pad.right : xs(i), H-4*dpr);
   });
 
   // Ligne maintenant
@@ -4136,12 +4143,13 @@ function drawDegradChart() {
     const W = canvas.offsetWidth * dpr, H = canvas.offsetHeight * dpr;
     canvas.width = W; canvas.height = H;
     ctx.clearRect(0, 0, W, H);
-    const pad = { top: 14, right: 16, bottom: 28, left: 40 };
+    const pad = { top: 14*dpr, right: 16*dpr, bottom: 28*dpr, left: 40*dpr };
     const gw = W - pad.left - pad.right;
     const gh = H - pad.top - pad.bottom;
     const n = h.length;
     const xs = i => pad.left + (i / (n-1)) * gw;
     const ys = v => pad.top + gh - ((v - 70) / 30) * gh;  // axe 70-100%
+    const accent = '#00e5a0';
     // Grille horizontale
     ctx.strokeStyle = cc.grid; ctx.lineWidth = 1;
     [70, 80, 90, 100].forEach(v => {
@@ -4150,7 +4158,7 @@ function drawDegradChart() {
       ctx.fillStyle = cc.label;
       ctx.font = (9 * dpr) + 'px monospace';
       ctx.textAlign = 'right';
-      ctx.fillText(v + '%', pad.left - 4, y + 3 * dpr);
+      ctx.fillText(v + '%', pad.left - 4 * dpr, y + 3 * dpr);
     });
     // Zone de tendance (aire)
     const grad = ctx.createLinearGradient(0, pad.top, 0, pad.top + gh);
@@ -4164,7 +4172,7 @@ function drawDegradChart() {
     ctx.lineTo(xs(n-1), pad.top + gh); ctx.lineTo(xs(0), pad.top + gh);
     ctx.closePath(); ctx.fillStyle = grad; ctx.fill();
     // Ligne
-    ctx.beginPath(); ctx.strokeStyle = 'var(--accent)'; ctx.lineWidth = 1.5 * dpr; ctx.lineJoin = 'round';
+    ctx.beginPath(); ctx.strokeStyle = accent; ctx.lineWidth = 1.5 * dpr; ctx.lineJoin = 'round';
     h.forEach((p, i) => {
       const v = Math.min(100, Math.max(70, p.socMax));
       i === 0 ? ctx.moveTo(xs(i), ys(v)) : ctx.lineTo(xs(i), ys(v));
@@ -4174,15 +4182,19 @@ function drawDegradChart() {
     h.forEach((p, i) => {
       const v = Math.min(100, Math.max(70, p.socMax));
       ctx.beginPath(); ctx.arc(xs(i), ys(v), 3*dpr, 0, Math.PI*2);
-      ctx.fillStyle = 'var(--accent)'; ctx.fill();
+      ctx.fillStyle = accent; ctx.fill();
     });
     // Labels date (espacement auto)
     const step = Math.max(1, Math.floor(n / 6));
-    ctx.fillStyle = cc.label; ctx.font = (9*dpr) + 'px monospace'; ctx.textAlign = 'center';
-    for (let i = 0; i < n; i += step) {
+    ctx.fillStyle = cc.label2; ctx.font = (9*dpr) + 'px monospace'; ctx.textAlign = 'center';
+    for (let i = 0; i < n - 1; i += step) {
       const d = fmtDateShort(h[i].date);  // DD-MM
       ctx.fillText(d, xs(i), H - 5*dpr);
     }
+    // Dernier point : toujours affiché, ancré à droite pour éviter le rognage
+    const lastLabel = fmtDateShort(h[n-1].date);
+    ctx.textAlign = 'right';
+    ctx.fillText(lastLabel, W - pad.right, H - 5*dpr);
   } catch(e) {}
 }
 
@@ -4454,7 +4466,7 @@ function drawWeekCompare() {
       const valsN  = weekN.map(d => hist[d]?.prod||0);
       const valsN1 = weekN1 ? weekN1.map(d => hist[d]?.prod||0) : null;
       const maxV   = Math.max(...valsN, ...(valsN1||[0]), 0.1);
-      const pad    = {top:14,right:16,bottom:28,left:44};
+      const pad    = {top:14*dpr,right:16*dpr,bottom:28*dpr,left:44*dpr};
       const gw=W-pad.left-pad.right, gh=H-pad.top-pad.bottom;
       const xs = i => pad.left + (i/6)*gw;
       const ys = v => pad.top + gh - (v/maxV)*gh;
@@ -4476,8 +4488,9 @@ function drawWeekCompare() {
         ctx.beginPath(); ctx.arc(xs(i),ys(v),3*dpr,0,Math.PI*2); ctx.fillStyle='#f5c842'; ctx.fill();
         const d=new Date(weekN[i]+'T12:00:00');
         const dn=['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'][d.getDay()];
-        ctx.fillStyle=cc.label; ctx.font=(9*dpr)+'px monospace'; ctx.textAlign='center';
-        ctx.fillText(dn, xs(i), H-5*dpr);
+        const isLast = i === valsN.length-1;
+        ctx.fillStyle=cc.label; ctx.font=(9*dpr)+'px monospace'; ctx.textAlign=isLast?'right':'center';
+        ctx.fillText(dn, isLast ? W-pad.right : xs(i), H-5*dpr);
       });
     }
   }
@@ -6102,11 +6115,11 @@ function draw7DayChart(hist) {
   const maxVal  = Math.max(...allVals, 1);
 
   // Grid
-  ctx.strokeStyle = '#1e2830'; ctx.lineWidth = 1;
+  ctx.strokeStyle = cc.grid; ctx.lineWidth = 1;
   for (let i = 0; i <= 4; i++) {
     const y = pad.top + ch - (i / 4) * ch;
     ctx.beginPath(); ctx.moveTo(pad.left, y); ctx.lineTo(W - pad.right, y); ctx.stroke();
-    ctx.fillStyle = '#4a6a60'; ctx.font = '9px Space Mono, monospace';
+    ctx.fillStyle = cc.label; ctx.font = '9px Space Mono, monospace';
     ctx.fillText(((i / 4) * maxVal).toFixed(1), 2, y + 3);
   }
 
@@ -6126,7 +6139,7 @@ function draw7DayChart(hist) {
       ctx.globalAlpha = 1;
     });
     // Label date
-    ctx.fillStyle = '#4a6a60'; ctx.font = '9px Space Mono, monospace';
+    ctx.fillStyle = cc.label; ctx.font = '9px Space Mono, monospace';
     ctx.fillText(fmtDateShort(day), x0, H - 8);
   });
 }
