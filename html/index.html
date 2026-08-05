@@ -3641,19 +3641,15 @@ function solarHistPush(power, yieldDay) {
 }
 
 function drawSolarDayChart() {
-  const cc = getCanvasColors();
   const canvas = document.getElementById('chartSolarDay');
-  if (!canvas) return;
+  const setup = setupChartCanvas(canvas);
+  if (!setup) return;
+  const { ctx, W, H, dpr, cc } = setup;
   try {
     const raw = localStorage.getItem('indevolt_solar24h');
     if (!raw) return;
     const h = JSON.parse(raw);
     if (!h.ts || h.ts.length < 2) return;
-    const ctx = canvas.getContext('2d');
-    const dpr = window.devicePixelRatio || 1;
-    const W = canvas.offsetWidth * dpr, H = canvas.offsetHeight * dpr;
-    canvas.width = W; canvas.height = H;
-    ctx.clearRect(0, 0, W, H);
     const pad = { top: 16*dpr, right: 16*dpr, bottom: 28*dpr, left: 48*dpr };
     const gw = W - pad.left - pad.right;
     const gh = H - pad.top - pad.bottom;
@@ -3929,18 +3925,10 @@ function renderForecastSolar(result) {
 }
 
 function drawForecastSolarChart(slots) {
-  const cc = getCanvasColors();
   const canvas = document.getElementById('chartForecastSolar');
-  if (!canvas) return;
-  const dpr = window.devicePixelRatio || 1;
-  const cssW = canvas.offsetWidth || 400, cssH = 90;
-  canvas.width  = cssW * dpr;
-  canvas.height = cssH * dpr;
-  canvas.style.width  = cssW + 'px';
-  canvas.style.height = cssH + 'px';
-  const W = canvas.width, H = canvas.height;
-  const ctx = canvas.getContext('2d');
-  ctx.clearRect(0,0,W,H);
+  const setup = setupChartCanvas(canvas, 400, 90);
+  if (!setup) return;
+  const { ctx, W, H, dpr, cc } = setup;
   const pad = { top:8*dpr, right:8*dpr, bottom:22*dpr, left:36*dpr };
   const gw = W-pad.left-pad.right, gh = H-pad.top-pad.bottom;
   const maxV = Math.max(10, ...slots.map(s => s.wh)) * 1.1;
@@ -4036,20 +4024,17 @@ function renderWeather(data) {
 }
 
 function drawRadiationChart(data) {
-  const cc = getCanvasColors();
   const canvas = document.getElementById('chartRadiation');
   if (!canvas || !data.hourly) return;
   requestAnimationFrame(() => {
+    const setup = setupChartCanvas(canvas);
+    if (!setup) return;
+    const { ctx, W, H, dpr, cc } = setup;
     const today = new Date().toISOString().slice(0,10);
     const hours = data.hourly.time.map((t,i) => ({ t, v: data.hourly.direct_radiation[i] || 0 }))
                     .filter(x => x.t.startsWith(today));
     if (hours.length < 2) return;
-    const ctx = canvas.getContext('2d');
-    const dpr = window.devicePixelRatio || 1;
-    const W = canvas.offsetWidth * dpr, H = canvas.offsetHeight * dpr;
-    canvas.width = W; canvas.height = H;
-    ctx.clearRect(0, 0, W, H);
-    const pad = { top: 8, right: 8, bottom: 20, left: 36 };
+    const pad = { top: 8*dpr, right: 8*dpr, bottom: 20*dpr, left: 36*dpr };
     const gw = W - pad.left - pad.right, gh = H - pad.top - pad.bottom;
     const maxV = Math.max(10, ...hours.map(x => x.v)) * 1.1;
     const n = hours.length;
@@ -4128,29 +4113,20 @@ function updateCycleDisplay() {
 }
 
 function drawDegradChart() {
-  const cc = getCanvasColors();
   const canvas = document.getElementById('chartDegrad');
-  if (!canvas) return;
+  const setup = setupChartCanvas(canvas);
+  if (!setup) return;
+  const { ctx, W, H, dpr, cc } = setup;
   try {
     const raw = localStorage.getItem('indevolt_degrad');
     const h = raw ? JSON.parse(raw) : [];
     if (h.length < 2) {
-      const ctx = canvas.getContext('2d');
-      const dpr = window.devicePixelRatio || 1;
-      canvas.width  = canvas.offsetWidth  * dpr;
-      canvas.height = canvas.offsetHeight * dpr;
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
       ctx.fillStyle = cc.nodata;
       ctx.font = (11 * dpr) + 'px monospace';
       ctx.textAlign = 'center';
-      ctx.fillText('Données insuffisantes — revenez dans quelques jours', canvas.width/2, canvas.height/2);
+      ctx.fillText('Données insuffisantes — revenez dans quelques jours', W/2, H/2);
       return;
     }
-    const ctx = canvas.getContext('2d');
-    const dpr = window.devicePixelRatio || 1;
-    const W = canvas.offsetWidth * dpr, H = canvas.offsetHeight * dpr;
-    canvas.width = W; canvas.height = H;
-    ctx.clearRect(0, 0, W, H);
     const pad = { top: 14*dpr, right: 16*dpr, bottom: 28*dpr, left: 40*dpr };
     const gw = W - pad.left - pad.right;
     const gh = H - pad.top - pad.bottom;
@@ -4326,19 +4302,11 @@ function get30DayHistory() {
 }
 
 function draw30DayChart() {
-  const cc = getCanvasColors();
   const canvas = document.getElementById('chart30Days');
-  if (!canvas) return;
+  const setup = setupChartCanvas(canvas);
+  if (!setup) return;
+  const { ctx, W, H, dpr, cc } = setup;
   const { hist, days } = getFilteredHistDays();
-  const ctx  = canvas.getContext('2d');
-  const dpr  = window.devicePixelRatio || 1;
-  const cssW = canvas.offsetWidth, cssH = canvas.offsetHeight;
-  if (!cssW || !cssH) return;   // tab non visible — ne pas écraser les styles CSS
-  const W = cssW * dpr, H = cssH * dpr;
-  canvas.width  = W; canvas.height = H;
-  canvas.style.width  = cssW + 'px';
-  canvas.style.height = cssH + 'px';
-  ctx.clearRect(0, 0, W, H);
 
   if (days.length < 2) {
     ctx.fillStyle = cc.nodata;
@@ -4456,15 +4424,12 @@ function toggleHistMetric(m) {
 function switchHistMetric(m) { toggleHistMetric(m); }  // rétrocompat
 
 function drawWeekCompare() {
-  const cc = getCanvasColors();
   const canvas = document.getElementById('chartWeekCompare');
+  const setup = setupChartCanvas(canvas);
   const { hist, days: allDays } = { hist: get30DayHistory(), days: Object.keys(get30DayHistory()).sort() };
   const days = allDays;
-  if (canvas) {
-    const ctx = canvas.getContext('2d');
-    const dpr = window.devicePixelRatio || 1;
-    const W = canvas.offsetWidth*dpr, H = canvas.offsetHeight*dpr;
-    canvas.width=W; canvas.height=H; ctx.clearRect(0,0,W,H);
+  if (setup) {
+    const { ctx, W, H, dpr, cc } = setup;
     if (days.length < 7) {
       ctx.fillStyle=cc.nodata; ctx.font=(11*dpr)+'px monospace'; ctx.textAlign='center';
       ctx.fillText('7 jours requis', W/2, H/2); 
@@ -5720,6 +5685,27 @@ function getCanvasColors() {
   };
 }
 
+// Prépare un canvas de graphique pour un rendu net sur écrans HiDPI :
+// mesure la taille CSS réelle, dimensionne la surface de rendu en conséquence
+// (canvas.width/height), efface le contenu précédent et fournit dpr + couleurs
+// du thème courant. Utilisé par tous les graphiques « instantané » (redessinés
+// entièrement à chaque appel) afin qu'ils partagent la même logique de mise à
+// l'échelle — voir _initWheelZoom / SimpleChart / MultiChart pour les
+// graphiques temps réel interactifs, qui gèrent leur propre cycle
+// mesure/dessin pour ne pas re-mesurer le layout à chaque survol de souris.
+function setupChartCanvas(canvas, fallbackW, fallbackH) {
+  if (!canvas) return null;
+  const dpr  = window.devicePixelRatio || 1;
+  const cssW = canvas.offsetWidth  || fallbackW || 0;
+  const cssH = canvas.offsetHeight || fallbackH || 0;
+  if (!cssW || !cssH) return null; // onglet masqué ou pas encore mis en page
+  const W = cssW * dpr, H = cssH * dpr;
+  canvas.width = W; canvas.height = H;
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, W, H);
+  return { ctx, W, H, dpr, cc: getCanvasColors() };
+}
+
 function fmtDateShort(iso) {
   if (!iso || iso.length < 10) return iso ? iso.slice(5) : '';
   return iso.slice(8,10) + '-' + iso.slice(5,7);
@@ -6102,20 +6088,14 @@ function save7DayHistory(dailyCh, dailyDis, dailyImport, dailyExport) {
 }
 
 function draw7DayChart(hist) {
-  const cc = getCanvasColors();
   const canvas = document.getElementById('chart7Days');
-  if (!canvas) return;
-  const ctx = canvas.getContext('2d');
+  const setup = setupChartCanvas(canvas, 800, 200);
+  if (!setup) return;
+  const { ctx, W, H, dpr, cc } = setup;
   const days = Object.keys(hist).sort();
   if (!days.length) return;
 
-  const r = canvas.parentElement.getBoundingClientRect();
-  canvas.width  = r.width || 800;
-  canvas.height = 200;
-  const W = canvas.width, H = canvas.height;
-  ctx.clearRect(0, 0, W, H);
-
-  const pad = { top: 20, right: 20, bottom: 40, left: 50 };
+  const pad = { top: 20*dpr, right: 20*dpr, bottom: 40*dpr, left: 50*dpr };
   const cw = W - pad.left - pad.right;
   const ch = H - pad.top - pad.bottom;
 
@@ -6127,8 +6107,8 @@ function draw7DayChart(hist) {
   for (let i = 0; i <= 4; i++) {
     const y = pad.top + ch - (i / 4) * ch;
     ctx.beginPath(); ctx.moveTo(pad.left, y); ctx.lineTo(W - pad.right, y); ctx.stroke();
-    ctx.fillStyle = cc.label; ctx.font = '9px Space Mono, monospace';
-    ctx.fillText(((i / 4) * maxVal).toFixed(1), 2, y + 3);
+    ctx.fillStyle = cc.label; ctx.font = (9*dpr) + 'px Space Mono, monospace';
+    ctx.fillText(((i / 4) * maxVal).toFixed(1), 2*dpr, y + 3*dpr);
   }
 
   const bw   = (cw / days.length) * 0.25;
@@ -6143,12 +6123,12 @@ function draw7DayChart(hist) {
       const bh  = (val / maxVal) * ch;
       ctx.fillStyle = cols[ki];
       ctx.globalAlpha = 0.8;
-      ctx.fillRect(x0 + ki * (bw + 2), pad.top + ch - bh, bw, bh);
+      ctx.fillRect(x0 + ki * (bw + 2*dpr), pad.top + ch - bh, bw, bh);
       ctx.globalAlpha = 1;
     });
     // Label date
-    ctx.fillStyle = cc.label; ctx.font = '9px Space Mono, monospace';
-    ctx.fillText(fmtDateShort(day), x0, H - 8);
+    ctx.fillStyle = cc.label; ctx.font = (9*dpr) + 'px Space Mono, monospace';
+    ctx.fillText(fmtDateShort(day), x0, H - 8*dpr);
   });
 }
 
