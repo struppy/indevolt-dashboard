@@ -4745,7 +4745,7 @@ function clearLogs() { logger.clear(); }
 function copyLogs()  { navigator.clipboard.writeText(logger.toText()).then(() => showToast('Logs copies')); }
 function downloadLogs() {
   const a = document.createElement('a');
-  a.href = URL.createObjectURL(new Blob([logger.toText()], {type:'text/plain'}));
+  a.href = URL.createObjectURL(new Blob(['﻿' + logger.toText()], {type:'text/plain;charset=utf-8'}));
   a.download = 'indevolt-logs-' + fmtDate(new Date().toISOString().slice(0,10)) + '_' + new Date().toISOString().slice(11,19).replace(/:/g,'-') + '.txt';
   a.click();
 }
