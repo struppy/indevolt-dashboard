@@ -3338,8 +3338,8 @@ async function fetchData() {
     const controller = new AbortController();
     const timeout = setTimeout(() => {
       controller.abort();
-      logger.warn('Timeout proxy (5s)');
-    }, 5000);
+      logger.warn('Timeout proxy (8s)');
+    }, 8000);
 
     try {
       const res = await fetch(url, { method: 'POST', signal: controller.signal });
@@ -3373,7 +3373,7 @@ async function fetchData() {
       clearTimeout(timeout);
       let reason, hint;
       if (e.name === 'AbortError') {
-        reason = 'Timeout (5s) — proxy ou appareil inaccessible';
+        reason = 'Timeout (8s) — proxy ou appareil inaccessible';
         hint   = `Proxy nginx inaccessible — testez : /indevolt-api/${state.ip}/Indevolt.GetData`;
       } else if (e.message === 'Failed to fetch') {
         reason = 'proxy PHP introuvable';
@@ -3404,8 +3404,8 @@ async function fetchData() {
   const controller = new AbortController();
   const timeout = setTimeout(() => {
     controller.abort();
-    logger.warn('Timeout (5s) — appareil inaccessible ou trop lent');
-  }, 5000);
+    logger.warn('Timeout (8s) — appareil inaccessible ou trop lent');
+  }, 8000);
 
   try {
     const res = await fetch(url, {
