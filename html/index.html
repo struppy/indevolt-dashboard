@@ -225,6 +225,8 @@
 
   .status-dot.online { background: var(--accent); box-shadow: 0 0 8px var(--accent); animation: pulse 2s infinite; }
   .status-dot.error  { background: var(--danger); box-shadow: 0 0 8px var(--danger); }
+  .status-dot.stale  { background: var(--warn); box-shadow: 0 0 8px var(--warn); }
+  .last-update.stale { color: var(--warn); }
 
   @keyframes pulse {
     0%, 100% { opacity: 1; }
@@ -2747,7 +2749,13 @@ const state = {
   timer: null,
   countdown: 30,
   opendtu: { enabled:false, ip:'192.168.1.121', power:null, yieldDay:null, yieldTotal:null, lastUpdate:null, error:null, inverters:[] },
+  // Tolérance aux refus ponctuels de la batterie (serveur HTTP fragile, partagé avec HA)
+  fetching: false,   // évite deux lectures simultanées (timer + bouton Actualiser)
+  lastOkAt: null,    // horodatage de la dernière lecture réussie
+  failCount: 0,      // échecs consécutifs (après réessai)
 };
+const FETCH_RETRY_DELAY_MS = 3000; // réessai unique après un échec
+const FETCH_MAX_SOFT_FAILS = 3;    // bandeau d'erreur seulement après N échecs consécutifs
 
 // ==================== CHART ====================
 const charts = {};
@@ -3061,6 +3069,21 @@ function setStatus(connected, text) {
   }
 }
 
+// Affiche l'âge des dernières données quand des lectures ont échoué
+function updateStaleIndicator() {
+  const el = document.getElementById('lastUpdate');
+  if (!el || !state.lastOkAt) return;
+  const t = new Date(state.lastOkAt).toLocaleTimeString('fr-FR');
+  if (state.failCount > 0) {
+    const age = Math.round((Date.now() - state.lastOkAt) / 1000);
+    el.textContent = 'Dernière MAJ : ' + t + ' (données d\'il y a ' + age + 's)';
+    el.classList.add('stale');
+  } else {
+    el.textContent = 'Dernière MAJ : ' + t;
+    el.classList.remove('stale');
+  }
+}
+
 // ── Config Panel Collapse ───────────────────────────────────
 function collapseConfigPanel() {
   const panel   = document.getElementById('configPanel');
@@ -3292,6 +3315,7 @@ function startTimer() {
   state.timer = setInterval(() => {
     state.countdown--;
     document.getElementById('nextRefresh').textContent = `Actualisation dans ${state.countdown}s`;
+    if (state.failCount > 0) updateStaleIndicator();
     if (state.countdown <= 0) {
       state.countdown = 30;
       fetchData();
@@ -3305,7 +3329,59 @@ function startTimer() {
 }
 
 // ==================== FETCH ====================
+// Lecture tolérante : un réessai après FETCH_RETRY_DELAY_MS, puis les dernières
+// valeurs restent affichées ; le bandeau d'erreur n'apparaît qu'après
+// FETCH_MAX_SOFT_FAILS échecs consécutifs.
 async function fetchData() {
+  if (state.fetching) return;
+  state.fetching = true;
+  try {
+    let ok = await fetchDataOnce(false);
+    if (!ok) {
+      logger.warn('Lecture refusée par la batterie', 'nouvel essai dans ' + (FETCH_RETRY_DELAY_MS / 1000) + 's');
+      await new Promise(r => setTimeout(r, FETCH_RETRY_DELAY_MS));
+      ok = await fetchDataOnce(true);
+    }
+    if (ok) {
+      if (state.failCount > 0) logger.info('Lecture rétablie', 'après ' + state.failCount + ' échec(s)');
+      state.failCount = 0;
+      state.lastOkAt = Date.now();
+      updateStaleIndicator();
+      return;
+    }
+    state.failCount++;
+    if (state.lastOkAt && state.failCount < FETCH_MAX_SOFT_FAILS) {
+      // Échec ponctuel : on garde l'affichage, statut orange
+      setStatus(true, 'Connecté — données conservées (' + state.failCount + '/' + FETCH_MAX_SOFT_FAILS + ' échecs)');
+      const dot = document.getElementById('statusDot');
+      if (dot) dot.className = 'status-dot stale';
+      updateStaleIndicator();
+    } else {
+      showFetchError();
+    }
+  } finally {
+    state.fetching = false;
+  }
+}
+
+// Affiche l'erreur de la dernière tentative (statut, réponse brute, bandeau)
+function showFetchError() {
+  const err = state.lastFetchError || { reason: 'Erreur inconnue', hint: '' };
+  setStatus(false, state.mode === 'proxy' ? 'Erreur proxy' : 'Erreur de connexion');
+  const rawEl = document.getElementById('rawResponse');
+  if (rawEl) rawEl.textContent = 'Erreur : ' + err.reason + '\n\nConseil : ' + err.hint;
+  if (state.mode === 'proxy') {
+    const nb = document.getElementById('networkErrorBanner');
+    const nm = document.getElementById('networkErrorMsg');
+    if (nb) nb.style.display = 'flex';
+    if (nm) nm.textContent = err.reason;
+  }
+  updateStaleIndicator();
+}
+
+// Une tentative de lecture. Retourne true si les données ont été traitées.
+// isRetry : erreurs journalisées en ERROR uniquement au second essai.
+async function fetchDataOnce(isRetry) {
   // ── Registres à lire (Gen 2 - SolidFlex 2000 ECO + SFA1800) ──
   const REGISTERS = [
     0,                                                  // SN (test connexion)
@@ -3363,11 +3439,10 @@ async function fetchData() {
         _prevState.connected = true;
         logEvent('connect', 'info', 'Connexion établie', state.ip + ' [proxy]');
       }
-      document.getElementById('lastUpdate').textContent = 'Dernière MAJ : ' + new Date().toLocaleTimeString('fr-FR');
       // P08 — masquer bannière au succès
       const nbOk = document.getElementById('networkErrorBanner');
       if (nbOk) nbOk.style.display = 'none';
-      return;
+      return true;
 
     } catch (e) {
       clearTimeout(timeout);
@@ -3382,17 +3457,10 @@ async function fetchData() {
         reason = e.message;
         hint   = 'Testez : ' + window.location.origin + `/indevolt-api/${state.ip}/Indevolt.GetData?config=%7B%22t%22%3A%5B6002%5D%7D`;
       }
-      setStatus(false, 'Erreur proxy');
-      logger.error('Échec proxy', reason);
-      logger.warn(hint);
-      const rawEl = document.getElementById('rawResponse');
-      if (rawEl) rawEl.textContent = 'Erreur : ' + reason + '\n\nConseil : ' + hint;
-      // P08 — afficher bannière
-      const nb = document.getElementById('networkErrorBanner');
-      const nm = document.getElementById('networkErrorMsg');
-      if (nb) nb.style.display = 'flex';
-      if (nm) nm.textContent = reason;
-      return;
+      state.lastFetchError = { reason, hint };
+      if (isRetry) { logger.error('Échec proxy', reason); logger.warn(hint); }
+      else logger.debug('Échec proxy (1er essai)', reason);
+      return false;
     }
   }
 
@@ -3432,7 +3500,7 @@ async function fetchData() {
     }
 
     setStatus(true, 'Connecté — ' + state.ip + ' [direct]');
-    document.getElementById('lastUpdate').textContent = 'Dernière MAJ : ' + new Date().toLocaleTimeString('fr-FR');
+    return true;
 
   } catch (e) {
     clearTimeout(timeout);
@@ -3450,11 +3518,10 @@ async function fetchData() {
       reason = e.message;
       hint   = 'Essayez le mode proxy PHP.';
     }
-    setStatus(false, 'Erreur de connexion');
-    logger.error('Échec de la requête', reason);
-    logger.warn(hint);
-    const rawEl = document.getElementById('rawResponse');
-    if (rawEl) rawEl.textContent = 'Erreur : ' + reason + '\n\nConseil : ' + hint;
+    state.lastFetchError = { reason, hint };
+    if (isRetry) { logger.error('Échec de la requête', reason); logger.warn(hint); }
+    else logger.debug('Échec de la requête (1er essai)', reason);
+    return false;
   }
 }
 // ==================== OPENDTU ====================

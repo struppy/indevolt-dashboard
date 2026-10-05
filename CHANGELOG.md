@@ -15,6 +15,7 @@ Versioning basé sur [Semantic Versioning](https://semver.org/lang/fr/)
 ### Modifié
 - `Indevolt.GetData` est mis en cache 10s côté nginx (`proxy_cache` + `proxy_cache_lock`) : une seule lecture est partagée entre tous les navigateurs et Home Assistant. `SetData` et toutes les autres routes ne sont jamais mis en cache. En-tête `X-Cache-Status` ajouté pour le diagnostic
 - Délais proxy alignés sur le timeout de 8s du front : `proxy_connect_timeout 3s`, `proxy_read_timeout 7s` (Indevolt et OpenDTU)
+- Lecture Indevolt tolérante aux refus ponctuels de la batterie : un réessai automatique 3s après un échec, les dernières valeurs restent affichées (statut orange, « données d'il y a Xs ») et le bandeau d'erreur n'apparaît qu'après 3 cycles consécutifs en échec. Le premier échec d'un cycle est journalisé en DEBUG, seul l'échec du réessai l'est en ERROR. Les lectures simultanées (timer + bouton Actualiser) sont désormais évitées
 
 ---
 
