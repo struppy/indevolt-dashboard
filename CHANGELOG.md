@@ -7,6 +7,17 @@ Versioning basé sur [Semantic Versioning](https://semver.org/lang/fr/)
 
 ---
 
+## [2.2.3] - 2026-10-05
+
+### Corrigé
+- "Échec proxy → HTTP 404" sur la lecture Indevolt : la batterie (SolidFlex 2000, firmware V140E) coupe la connexion ou répond trop lentement quand plusieurs clients l'interrogent en même temps ; nginx tentait alors `error_page /50x.html` (absent), ce qui transformait la vraie erreur 502/504 en faux 404. Les proxys `/indevolt-api/` et `/opendtu-api/` renvoient désormais un 502 JSON explicite (`@upstream_down`) ; la directive globale `error_page` et la location `/50x.html` ont été supprimées
+
+### Modifié
+- `Indevolt.GetData` est mis en cache 10s côté nginx (`proxy_cache` + `proxy_cache_lock`) : une seule lecture est partagée entre tous les navigateurs et Home Assistant. `SetData` et toutes les autres routes ne sont jamais mis en cache. En-tête `X-Cache-Status` ajouté pour le diagnostic
+- Délais proxy alignés sur le timeout de 8s du front : `proxy_connect_timeout 3s`, `proxy_read_timeout 7s` (Indevolt et OpenDTU)
+
+---
+
 ## [2.2.2] - 2026-08-03
 
 ### Corrigé
